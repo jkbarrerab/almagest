@@ -14,6 +14,9 @@ build/
 # Outputs (generated reports)
 outputs/
 
+# Claude Code instructions
+CLAUDE.md
+
 # macOS
 .DS_Store
 
