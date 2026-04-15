@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Almagest — AI Research Agent for NASA ADS</title>
+  <meta name="description" content="Open-source AI research agent for NASA Astrophysics Data System. Ten research workflows powered by Claude or any local LLM." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080c18;
+      --bg-2:      #0c1120;
+      --bg-card:   #0f1627;
+      --border:    rgba(255,255,255,0.07);
+      --border-h:  rgba(201,169,110,0.3);
+      --gold:      #c9a96e;
+      --gold-dim:  #8a7050;
+      --blue:      #5b9cf6;
+      --blue-dim:  #3a6aba;
+      --text:      #dce3f0;
+      --text-muted:#6b7a99;
+      --text-dim:  #3d4a63;
+      --code-bg:   #060a13;
+      --radius:    12px;
+      --radius-sm: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ─── Stars Background ─────────────────────────────────────── */
+    #stars-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    /* ─── Layout ───────────────────────────────────────────────── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    section { padding: 100px 0; }
+    section + section { border-top: 1px solid var(--border); }
+
+    /* ─── Nav ──────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(8,12,24,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+
+    .nav-logo span { color: var(--text-muted); font-size: 13px; margin-left: 8px; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+    .btn-nav {
+      background: rgba(201,169,110,0.12);
+      border: 1px solid rgba(201,169,110,0.3);
+      color: var(--gold) !important;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-nav:hover { background: rgba(201,169,110,0.2); text-decoration: none !important; }
+
+    /* ─── Hero ─────────────────────────────────────────────────── */
+    .hero {
+      padding: 160px 0 100px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 28px;
+    }
+
+    .hero-eyebrow::before,
+    .hero-eyebrow::after {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--gold-dim);
+    }
+
+    .ascii-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(10px, 2vw, 17px);
+      font-weight: 400;
+      color: var(--gold);
+      line-height: 1.3;
+      letter-spacing: 0.05em;
+      margin-bottom: 32px;
+      white-space: pre;
+      text-shadow: 0 0 40px rgba(201,169,110,0.4);
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 19px);
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 44px;
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 64px;
+    }
+
+    .install-cmd {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.2s;
+      position: relative;
+    }
+    .install-cmd:hover { border-color: var(--border-h); }
+    .install-cmd .prompt { color: var(--gold-dim); }
+    .install-cmd .copy-icon {
+      color: var(--text-dim);
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+    .install-cmd:hover .copy-icon { color: var(--text-muted); }
+    .copy-tooltip {
+      position: absolute;
+      top: -30px; left: 50%; transform: translateX(-50%);
+      background: var(--gold);
+      color: #000;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .install-cmd.copied .copy-tooltip { opacity: 1; }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold);
+      color: #080c18;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 11px 24px;
+      border-radius: var(--radius-sm);
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.88; text-decoration: none; transform: translateY(-1px); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 11px 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--border-h); color: var(--text); text-decoration: none; }
+
+    /* ─── Terminal Demo ─────────────────────────────────────────── */
+    .terminal {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      max-width: 740px;
+      margin: 0 auto;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+    }
+
+    .terminal-bar {
+      background: #0d1117;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #ffbd2e; }
+    .dot-g { background: #28c840; }
+    .terminal-title {
+      flex: 1; text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .terminal-body {
+      padding: 20px 22px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      min-height: 240px;
+    }
+
+    .t-line { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 2px; }
+    .t-prompt { color: var(--gold-dim); flex-shrink: 0; }
+    .t-cmd { color: #e8eaf0; }
+    .t-out { color: var(--text-muted); padding-left: 0; }
+    .t-out.cyan { color: #5b9cf6; }
+    .t-out.green { color: #4caf82; }
+    .t-out.dim { color: var(--text-dim); }
+    .t-out.gold { color: var(--gold); }
+    .t-cursor {
+      display: inline-block;
+      width: 8px; height: 14px;
+      background: var(--gold);
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ─── Section Headers ──────────────────────────────────────── */
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(26px, 3.5vw, 40px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 560px;
+      line-height: 1.65;
+    }
+
+    .section-header { margin-bottom: 56px; }
+
+    /* ─── Workflow Grid ─────────────────────────────────────────── */
+    .workflow-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .workflow-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .workflow-grid { grid-template-columns: 1fr; }
+    }
+
+    .workflow-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+
+    .workflow-card:hover {
+      border-color: var(--border-h);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    }
+
+    .workflow-cmd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .workflow-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .workflow-card p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ─── Features ─────────────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 640px) { .features-grid { grid-template-columns: 1fr; } }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 26px;
+      display: flex;
+      gap: 18px;
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: rgba(201,169,110,0.1);
+      border: 1px solid rgba(201,169,110,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .feature-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .feature-card p { font-size: 13.5px; color: var(--text-muted); line-height: 1.6; }
+
+    /* ─── Agents ────────────────────────────────────────────────── */
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 860px) { .agents-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .agents-grid { grid-template-columns: 1fr; } }
+
+    .agent-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 22px;
+      text-align: center;
+    }
+
+    .agent-icon {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(201,169,110,0.15), rgba(91,156,246,0.1));
+      border: 1px solid rgba(201,169,110,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .agent-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .agent-card p { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+
+    /* ─── LLM / Provider Badges ─────────────────────────────────── */
+    .providers {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .provider-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 10px 20px;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .provider-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .provider-badge.default .provider-dot { background: var(--gold); }
+    .provider-badge.alt .provider-dot { background: var(--blue); }
+
+    /* ─── Quickstart ────────────────────────────────────────────── */
+    .quickstart-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 680px;
+    }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: 1px solid var(--border-h);
+      color: var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-body h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .code-block .comment { color: var(--text-dim); }
+    .code-block .cmd { color: var(--gold-dim); }
+    .code-block .arg { color: var(--blue); }
+    .code-block .str { color: #98c379; }
+
+    /* ─── Extra context callout ─────────────────────────────────── */
+    .callout {
+      background: linear-gradient(135deg, rgba(201,169,110,0.06), rgba(91,156,246,0.04));
+      border: 1px solid rgba(201,169,110,0.18);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      max-width: 740px;
+      margin: 0 auto;
+    }
+
+    .callout-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+
+    .callout h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .callout p { font-size: 14px; color: var(--text-muted); line-height: 1.65; }
+
+    .callout code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      background: rgba(201,169,110,0.1);
+      color: var(--gold);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* ─── Footer ────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 0;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--text); }
+
+    /* ─── Divider ────────────────────────────────────────────────── */
+    .divider {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(to right, var(--gold), transparent);
+      margin: 0 auto 60px;
+      border-radius: 2px;
+    }
+
+    /* ─── Animate on scroll ─────────────────────────────────────── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Stars canvas -->
+  <canvas id="stars-canvas"></canvas>
+
+  <!-- ─── Navigation ──────────────────────────────────────────── -->
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-logo">
+        ALMAGEST <span>/ NASA ADS agent</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#workflows">Workflows</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#quickstart">Quick start</a></li>
+        <li><a href="https://github.com" class="btn-nav">★ GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ─── Hero ────────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">Open source · NASA ADS · Ten workflows</div>
+
+      <pre class="ascii-logo">   ╔═╗╦  ╔╦╗╔═╗╔═╗╔═╗╔═╗╔╦╗
+   ╠═╣║  ║║║╠═╣║ ╦║╣ ╚═╗ ║
+   ╩ ╩╩═╝╩ ╩╩ ╩╚═╝╚═╝╚═╝ ╩</pre>
+
+      <h1>The AI research agent<br/>for <em>astrophysicists</em></h1>
+
+      <p class="hero-sub">
+        Nine research workflows for the NASA Astrophysics Data System.
+        Search, review, replicate, and synthesize the literature — powered by Claude or any local LLM.
+      </p>
+
+      <div class="hero-actions">
+        <div class="install-cmd" onclick="copyInstall(this)" title="Click to copy">
+          <span class="prompt">$</span>
+          <span>pip install almagest</span>
+          <span class="copy-icon">⎘</span>
+          <div class="copy-tooltip">Copied!</div>
+        </div>
+        <a href="https://github.com" class="btn-primary">★ View on GitHub</a>
+        <a href="#quickstart" class="btn-secondary">Quick start →</a>
+      </div>
+
+      <!-- Terminal demo -->
+      <div class="terminal fade-up">
+        <div class="terminal-bar">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <div class="terminal-title">almagest — zsh</div>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+          <!-- Animated by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Workflows ────────────────────────────────────────────── -->
+  <section id="workflows">
+    <div class="container">
+      <div class="section-header fade-up">
+        <div class="section-label">Workflows</div>
+        <h2 class="section-title">Ten slash commands.<br/>Natural language. Your call.</h2>
+        <p class="section-sub">
+          Each workflow is a structured agent pipeline that searches NASA ADS,
+          fetches papers, and synthesises findings into a citable output file.
+        </p>
+      </div>
+
+      <div class="workflow-grid">
+        <div class="workflow-card fade-up">
+          <div class="workflow-cmd">/deepresearch</div>
+          <h3>Deep Research</h3>
+          <p>Multi-agent investigation across papers, web, and code. A planner delegates to parallel researchers, a synthesizer writes the brief.</p>
+        </div>
+        <div class="workflow-card fade-up">
+          <div class="workflow-cmd">/lit</div>
+          <h3>Literature Review</h3>
+          <p>Literature review from primary sources with consensus mapping. Foundational papers, key debates, gaps, and a recommended reading path.</p>
+        </div>
+        <div class="workflow-card fade-up">
+          <div class="workflow-cmd">/source</div>
+          <h3>Source Literature</h3>
+          <p>All literature for a named object (NGC 1068, M87, …) or a sky position + radius. Resolves names via SIMBAD/NED. Optional topic filter.</p>
+        </div>
+        <div class="workflow-card fade-up">
+          <div class="workflow-cmd">/review</div>
+          <h3>Peer Review</h3>
+          <p>Simulated peer review with severity scores and a revision plan. Accepts an ADS bibcode, a local PDF, or both.</p>
+        </div>
+        <div class="workflow-card fade-up">
+          <div class="workflow-cmd">/audit</div>
+          <h3>Reproducibility Audit</h3>
+          <p>Paper-to-code mismatch audit. Compares claims, parameters, and methods in the paper against any linked GitHub or Zenodo repository.</p>
+        </div>
+        <div class="workflow-card fade-up">
+          <div class="workflow-cmd">/replicate</div>
+          <h3>Replication Plan</h3>
+          <p>Generates a step-by-step replication plan — data access, software environment, expected outputs. Optionally executes it.</p>
+        </div>
+        <div class="workflow-card fade-up">
+          <div class="workflow-cmd">/compare</div>
+          <h3>Compare</h3>
+          <p>Side-by-side source comparison with agreement and conflict matrix. Useful for competing theories or methods on the same topic.</p>
+        </div>
+        <div class="workflow-card fade-up">
+          <div class="workflow-cmd">/draft</div>
+          <h3>Draft</h3>
+          <p>Polished paper-style draft with inline citations from findings. Full structure — abstract through conclusions — plus BibTeX.</p>
+        </div>
+        <div class="workflow-card fade-up">
+          <div class="workflow-cmd">/autoresearch</div>
+          <h3>Auto-Research</h3>
+          <p>Autonomous loop: hypothesize, search, measure, repeat. Iterates until the evidence converges or max rounds is reached.</p>
+        </div>
+        <div class="workflow-card fade-up">
+          <div class="workflow-cmd">/watch</div>
+          <h3>Watch</h3>
+          <p>Recurring monitor for new papers on a topic. Register a saved search; run it any time to get a digest of what's new.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Extra context callout ────────────────────────────────── -->
+  <div class="container" style="padding-top: 0; padding-bottom: 80px; position: relative; z-index: 1;">
+    <div class="callout fade-up">
+      <div class="callout-icon">✦</div>
+      <div>
+        <h3>Guide any workflow with extra context</h3>
+        <p>
+          Every command accepts <code>--context</code> (inline text) or <code>--context-file</code> (path to a markdown file)
+          to inject your own notes, bibcodes, or constraints directly into the agent's prompt.
+          Ask it to consider specific papers, restrict the scope, or address a particular concern.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Features ─────────────────────────────────────────────── -->
+  <section id="features">
+    <div class="container">
+      <div class="section-header fade-up">
+        <div class="section-label">Features</div>
+        <h2 class="section-title">Built for astronomers</h2>
+        <p class="section-sub">
+          Full ADS query syntax, PDF ingestion, provenance tracking, and your choice of language model.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card fade-up">
+          <div class="feature-icon">🔭</div>
+          <div>
+            <h3>Full NASA ADS integration</h3>
+            <p>Search with the complete ADS query syntax — author:, bibstem:, year:, doctype:review, citations(), references(). Fetch abstracts, full text, metrics, and BibTeX in one call.</p>
+          </div>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">📄</div>
+          <div>
+            <h3>Local PDF review</h3>
+            <p>Pass any PDF — preprint, paywalled paper, or your own manuscript — directly to the review workflow. The agent reads the full text and searches ADS for related work it may have missed.</p>
+          </div>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">🤖</div>
+          <div>
+            <h3>Claude or local LLM</h3>
+            <p>Defaults to Claude (Opus / Sonnet). Switch to any OpenAI-compatible local server — Ollama, LM Studio, vLLM — by changing two lines in your <code>.env</code> file. No code changes needed.</p>
+          </div>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">🗂️</div>
+          <div>
+            <h3>Provenance by default</h3>
+            <p>Every output file gets a <code>.provenance.md</code> sidecar recording generation time, workflow used, and all ADS bibcodes and URLs consulted. No more wondering where a claim came from.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Agents ───────────────────────────────────────────────── -->
+  <section id="agents">
+    <div class="container">
+      <div class="section-header fade-up" style="text-align:center;">
+        <div class="section-label">Multi-agent architecture</div>
+        <h2 class="section-title">Four specialised agents</h2>
+        <p class="section-sub" style="margin:0 auto;">
+          Complex workflows delegate to sub-agents, each with a focused role and its own system prompt.
+        </p>
+      </div>
+      <div class="agents-grid">
+        <div class="agent-card fade-up">
+          <div class="agent-icon">🔍</div>
+          <h3>Researcher</h3>
+          <p>Searches ADS with multiple query strategies, fetches papers, and extracts key claims with citation evidence.</p>
+        </div>
+        <div class="agent-card fade-up">
+          <div class="agent-icon">⚖️</div>
+          <h3>Reviewer</h3>
+          <p>Evaluates methodology, statistics, and missing citations. Grades issues CRITICAL / MAJOR / MINOR / COSMETIC.</p>
+        </div>
+        <div class="agent-card fade-up">
+          <div class="agent-icon">✍️</div>
+          <h3>Writer</h3>
+          <p>Synthesises findings into structured Markdown with inline ADS citations and a BibTeX bibliography.</p>
+        </div>
+        <div class="agent-card fade-up">
+          <div class="agent-icon">✓</div>
+          <h3>Verifier</h3>
+          <p>Spot-checks bibcodes against ADS, validates that cited papers support their attributed claims, removes dead links.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LLM Providers ────────────────────────────────────────── -->
+  <section>
+    <div class="container" style="text-align:center;">
+      <div class="section-label fade-up" style="margin-bottom:32px;">Supported language models</div>
+      <div class="providers fade-up">
+        <div class="provider-badge default">
+          <div class="provider-dot"></div> Claude Opus / Sonnet (default)
+        </div>
+        <div class="provider-badge alt">
+          <div class="provider-dot" style="background:var(--blue)"></div> Ollama (local)
+        </div>
+        <div class="provider-badge alt">
+          <div class="provider-dot" style="background:var(--blue)"></div> LM Studio
+        </div>
+        <div class="provider-badge alt">
+          <div class="provider-dot" style="background:var(--blue)"></div> vLLM
+        </div>
+        <div class="provider-badge alt">
+          <div class="provider-dot" style="background:var(--blue)"></div> Any OpenAI-compatible API
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Quick start ──────────────────────────────────────────── -->
+  <section id="quickstart">
+    <div class="container">
+      <div class="fade-up" style="display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:start;">
+        <div>
+          <div class="section-label">Quick start</div>
+          <h2 class="section-title" style="margin-bottom:40px;">Up in three steps</h2>
+
+          <div class="quickstart-steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <h4>Install</h4>
+                <div class="code-block">
+                  <span class="cmd">pip</span> install almagest
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <h4>Configure credentials</h4>
+                <div class="code-block">
+                  <span class="comment"># Copy and fill in your API keys</span><br/>
+                  cp .env.example .env<br/><br/>
+                  <span class="comment"># ADS token: ui.adsabs.harvard.edu/user/settings/token</span><br/>
+                  ADS_API_TOKEN=<span class="str">your_token</span><br/>
+                  ANTHROPIC_API_KEY=<span class="str">sk-ant-...</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <h4>Run a workflow</h4>
+                <div class="code-block">
+                  <span class="comment"># Verify setup</span><br/>
+                  almagest config-check<br/><br/>
+                  <span class="comment"># Literature review</span><br/>
+                  almagest lit <span class="str">"AGN feedback quenching"</span><br/><br/>
+                  <span class="comment"># Review a local PDF</span><br/>
+                  almagest review --pdf paper.pdf
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-label">Use a local LLM instead</div>
+          <h2 class="section-title" style="font-size:24px; margin-bottom:24px;">No API key required</h2>
+          <p style="color:var(--text-muted); font-size:14px; margin-bottom:24px; line-height:1.7;">
+            Run Almagest fully offline with Ollama. Pull any supported model and point the tool at your local server with two env vars.
+          </p>
+          <div class="code-block" style="margin-bottom:24px;">
+            <span class="comment"># Start Ollama</span><br/>
+            ollama pull qwen2.5-coder:7b<br/>
+            ollama serve<br/><br/>
+            <span class="comment"># .env</span><br/>
+            LLM_PROVIDER=<span class="str">local</span><br/>
+            LOCAL_LLM_BASE_URL=<span class="str">http://localhost:11434/v1</span><br/>
+            LOCAL_LLM_MODEL=<span class="str">qwen2.5-coder:7b</span>
+          </div>
+          <p style="color:var(--text-dim); font-size:12.5px; line-height:1.6;">
+            Models with native tool-use support (Qwen 2.5, Llama 3.1) give the best results.
+            All other models fall back to text-based tool calling.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Footer ──────────────────────────────────────────────── -->
+  <footer>
+    <div class="container">
+      <div class="footer-logo">ALMAGEST</div>
+      <p>Open-source AI research agent for the NASA Astrophysics Data System</p>
+      <p style="margin-top:16px;">
+        <a href="https://github.com">GitHub</a> ·
+        <a href="SETUP.md">Setup</a> ·
+        <a href="EXAMPLES.md">Examples</a> ·
+        <a href="https://ui.adsabs.harvard.edu">NASA ADS</a>
+      </p>
+      <p style="margin-top:24px; font-size:12px; color: var(--text-dim);">
+        Named after the <em>Almagest</em> — Ptolemy's 2nd-century compendium of all known astronomical knowledge.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ─── Scripts ─────────────────────────────────────────────── -->
+  <script>
+    // ── Stars ──────────────────────────────────────────────────
+    (function() {
+      const canvas = document.getElementById('stars-canvas');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+
+      function initStars() {
+        stars = [];
+        const count = Math.floor((canvas.width * canvas.height) / 4000);
+        for (let i = 0; i < count; i++) {
+          stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.2 + 0.2,
+            a: Math.random(),
+            speed: Math.random() * 0.004 + 0.001,
+            phase: Math.random() * Math.PI * 2,
+          });
+        }
+      }
+
+      let frame = 0;
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        frame++;
+        stars.forEach(s => {
+          const alpha = s.a * (0.5 + 0.5 * Math.sin(frame * s.speed + s.phase));
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(220, 227, 240, ${alpha})`;
+          ctx.fill();
+        });
+        requestAnimationFrame(draw);
+      }
+
+      window.addEventListener('resize', () => { resize(); initStars(); });
+      resize();
+      initStars();
+      draw();
+    })();
+
+    // ── Fade-up on scroll ───────────────────────────────────────
+    (function() {
+      const els = document.querySelectorAll('.fade-up');
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      els.forEach((el, i) => {
+        el.style.transitionDelay = (i % 9) * 60 + 'ms';
+        observer.observe(el);
+      });
+    })();
+
+    // ── Copy install command ────────────────────────────────────
+    function copyInstall(el) {
+      navigator.clipboard.writeText('pip install almagest').then(() => {
+        el.classList.add('copied');
+        setTimeout(() => el.classList.remove('copied'), 1800);
+      });
+    }
+
+    // ── Terminal animation ──────────────────────────────────────
+    (function() {
+      const body = document.getElementById('terminal-body');
+
+      const script = [
+        { type: 'cmd', text: 'almagest lit "AGN feedback quenching" --context "Focus on z<1 observations"' },
+        { type: 'out', cls: 'gold',  text: '  Literature Review: AGN feedback quenching' },
+        { type: 'out', cls: 'dim',   text: '─────────────────────────────────────────' },
+        { type: 'out', cls: 'cyan',  text: '  → ads_search(query=\'AGN feedback star formation quenching\', limit=10)' },
+        { type: 'out', cls: 'dim',   text: '    Found 10 results for: AGN feedback star formation quenching' },
+        { type: 'out', cls: 'cyan',  text: '  → ads_search(query=\'doctype:review AGN quenching galaxy year:2015-2024\')' },
+        { type: 'out', cls: 'dim',   text: '    Found 8 results · fetching top 5 abstracts...' },
+        { type: 'out', cls: 'cyan',  text: '  → ads_get_paper(bibcode=\'2012ARA&A..50..455F\')' },
+        { type: 'out', cls: 'dim',   text: '    Fabian (2012) — Observational Evidence of AGN Feedback' },
+        { type: 'out', cls: 'cyan',  text: '  → ads_export_bibtex(bibcodes=[...12 papers...])' },
+        { type: 'out', cls: 'dim',   text: '    BibTeX exported' },
+        { type: 'out', cls: '',      text: '' },
+        { type: 'out', cls: 'green', text: '  ✓ Saved to outputs/agn-feedback-quenching-lit-review.md' },
+      ];
+
+      let lineIdx = 0;
+      let charIdx = 0;
+      let currentEl = null;
+      let waitAfterCmd = false;
+
+      function addLine(cls) {
+        const div = document.createElement('div');
+        div.className = 't-line';
+        if (cls === 'cmd') {
+          const p = document.createElement('span');
+          p.className = 't-prompt';
+          p.textContent = '$ ';
+          div.appendChild(p);
+        }
+        const span = document.createElement('span');
+        span.className = cls === 'cmd' ? 't-cmd' : `t-out ${cls}`;
+        div.appendChild(span);
+        body.appendChild(div);
+        return span;
+      }
+
+      function type() {
+        if (lineIdx >= script.length) {
+          // Add blinking cursor at end
+          if (currentEl) {
+            const cursor = document.createElement('span');
+            cursor.className = 't-cursor';
+            currentEl.parentElement.appendChild(cursor);
+          }
+          return;
+        }
+
+        const line = script[lineIdx];
+
+        if (charIdx === 0) {
+          currentEl = addLine(line.type === 'cmd' ? 'cmd' : line.cls || '');
+        }
+
+        if (line.type === 'cmd') {
+          if (charIdx < line.text.length) {
+            currentEl.textContent = line.text.slice(0, charIdx + 1);
+            charIdx++;
+            setTimeout(type, 22);
+          } else {
+            charIdx = 0;
+            lineIdx++;
+            setTimeout(type, 280);
+          }
+        } else {
+          // Output lines appear instantly
+          currentEl.textContent = line.text;
+          charIdx = 0;
+          lineIdx++;
+          setTimeout(type, line.text === '' ? 40 : 90);
+        }
+
+        body.scrollTop = body.scrollHeight;
+      }
+
+      // Start after a short delay
+      setTimeout(type, 900);
+    })();
+  </script>
+</body>
+</html>
