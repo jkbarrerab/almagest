@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Almagest — Documentation</title>
+  <meta name="description" content="Full documentation for Almagest — the AI research agent for NASA ADS." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080c18;
+      --bg-2:      #0c1120;
+      --bg-card:   #0f1627;
+      --bg-sidebar:#0a0f1e;
+      --border:    rgba(255,255,255,0.07);
+      --border-h:  rgba(201,169,110,0.3);
+      --gold:      #c9a96e;
+      --gold-dim:  #8a7050;
+      --blue:      #5b9cf6;
+      --green:     #4caf82;
+      --text:      #dce3f0;
+      --text-muted:#6b7a99;
+      --text-dim:  #3d4a63;
+      --code-bg:   #060a13;
+      --radius:    10px;
+      --radius-sm: 6px;
+      --sidebar-w: 260px;
+      --nav-h:     56px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Top nav ───────────────────────────────────────────── */
+    .topnav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(8,12,24,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 24px;
+    }
+
+    .topnav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      text-decoration: none;
+    }
+
+    .topnav-logo:hover { text-decoration: none; }
+
+    .topnav-sep {
+      color: var(--text-dim);
+      font-size: 18px;
+      font-weight: 200;
+    }
+
+    .topnav-page {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .topnav-links {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      list-style: none;
+    }
+
+    .topnav-links a {
+      color: var(--text-muted);
+      font-size: 13.5px;
+      transition: color 0.2s;
+    }
+    .topnav-links a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── Layout ────────────────────────────────────────────── */
+    .layout {
+      display: flex;
+      padding-top: var(--nav-h);
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ───────────────────────────────────────────── */
+    .sidebar {
+      position: fixed;
+      top: var(--nav-h);
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 28px 0 40px;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .sidebar-group { margin-bottom: 28px; }
+
+    .sidebar-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 0 20px;
+      margin-bottom: 6px;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 5px 20px;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      transition: color 0.15s, background 0.15s;
+      border-left: 2px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: var(--text);
+      text-decoration: none;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .sidebar-link.active {
+      color: var(--gold);
+      border-left-color: var(--gold);
+      background: rgba(201,169,110,0.06);
+    }
+
+    /* ── Main content ──────────────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      max-width: 860px;
+      padding: 56px 64px 100px;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 40px 24px 80px; }
+    }
+
+    /* ── Doc sections ──────────────────────────────────────── */
+    .doc-section {
+      margin-bottom: 80px;
+      padding-top: 8px;
+    }
+
+    .doc-section + .doc-section {
+      border-top: 1px solid var(--border);
+      padding-top: 72px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 10px;
+    }
+
+    .doc-section h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+
+    .doc-section h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin: 36px 0 12px;
+    }
+
+    .doc-section h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 28px 0 10px;
+    }
+
+    .doc-section p {
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      max-width: 680px;
+    }
+
+    .doc-section ul, .doc-section ol {
+      padding-left: 20px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      max-width: 680px;
+    }
+
+    .doc-section li { margin-bottom: 6px; }
+
+    .doc-section li strong, .doc-section p strong { color: var(--text); }
+
+    .doc-section code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      background: rgba(201,169,110,0.08);
+      color: var(--gold);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* ── Code blocks ───────────────────────────────────────── */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 12px 0 20px;
+    }
+
+    .code-block-header {
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+      padding: 7px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+
+    .code-block pre {
+      padding: 16px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--text);
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .code-block pre .comment { color: var(--text-dim); }
+    .code-block pre .str { color: #98c379; }
+    .code-block pre .flag { color: var(--blue); }
+
+    /* ── Callout ───────────────────────────────────────────── */
+    .callout {
+      background: rgba(201,169,110,0.05);
+      border: 1px solid rgba(201,169,110,0.18);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 20px 0;
+      max-width: 680px;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .callout strong { color: var(--gold); }
+
+    .callout-blue {
+      background: rgba(91,156,246,0.05);
+      border-color: rgba(91,156,246,0.18);
+    }
+    .callout-blue strong { color: var(--blue); }
+
+    /* ── Output table ──────────────────────────────────────── */
+    .output-list {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 20px;
+    }
+
+    .output-list li {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      max-width: 680px;
+      margin: 0;
+    }
+
+    .output-list li:last-child { border-bottom: none; }
+
+    .output-key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--gold);
+      min-width: 160px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .output-val { color: var(--text-muted); font-size: 13.5px; }
+
+    /* ── Env table ─────────────────────────────────────────── */
+    .env-table {
+      width: 100%;
+      max-width: 680px;
+      border-collapse: collapse;
+      margin: 12px 0 20px;
+      font-size: 13px;
+    }
+
+    .env-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .env-table td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      vertical-align: top;
+    }
+
+    .env-table td:first-child {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--gold);
+    }
+
+    .env-table td .default {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--text-dim);
+    }
+
+    /* ── Step list ─────────────────────────────────────────── */
+    .step-list { list-style: none; padding: 0; max-width: 680px; }
+
+    .step-list li {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: 1px solid var(--border-h);
+      color: var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .step-body { flex: 1; }
+    .step-body strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 14px; }
+    .step-body p { margin: 0; font-size: 13.5px; }
+
+    /* ── Phase list ────────────────────────────────────────── */
+    .phase-list { list-style: none; padding: 0; max-width: 680px; }
+
+    .phase-list li {
+      display: flex;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .phase-list li:last-child { border-bottom: none; }
+
+    .phase-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--gold-dim);
+      min-width: 28px;
+      padding-top: 3px;
+    }
+
+    .phase-body strong { color: var(--text); font-size: 14px; display: block; margin-bottom: 4px; }
+    .phase-body p { margin: 0; color: var(--text-muted); font-size: 13.5px; }
+  </style>
+</head>
+<body>
+
+  <!-- Top nav -->
+  <nav class="topnav">
+    <a href="index.html" class="topnav-logo">ALMAGEST</a>
+    <span class="topnav-sep">/</span>
+    <span class="topnav-page">Documentation</span>
+    <ul class="topnav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="https://github.com/jkbarrerab/almagest">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+      <div class="sidebar-group">
+        <div class="sidebar-label">Getting Started</div>
+        <a href="#installation" class="sidebar-link">Installation</a>
+        <a href="#configuration" class="sidebar-link">Configuration</a>
+        <a href="#quickstart" class="sidebar-link">Quick start</a>
+        <a href="#context" class="sidebar-link">Extra context</a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-label">Workflows</div>
+        <a href="#deepresearch" class="sidebar-link">deepresearch</a>
+        <a href="#lit" class="sidebar-link">lit</a>
+        <a href="#source" class="sidebar-link">source</a>
+        <a href="#review" class="sidebar-link">review</a>
+        <a href="#audit" class="sidebar-link">audit</a>
+        <a href="#replicate" class="sidebar-link">replicate</a>
+        <a href="#compare" class="sidebar-link">compare</a>
+        <a href="#draft" class="sidebar-link">draft</a>
+        <a href="#autoresearch" class="sidebar-link">autoresearch</a>
+        <a href="#watch" class="sidebar-link">watch</a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-label">Utilities</div>
+        <a href="#search" class="sidebar-link">search</a>
+        <a href="#show" class="sidebar-link">show</a>
+        <a href="#config-check" class="sidebar-link">config-check</a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-label">Reference</div>
+        <a href="#ads-syntax" class="sidebar-link">ADS query syntax</a>
+        <a href="#output-format" class="sidebar-link">Output format</a>
+        <a href="#local-llm" class="sidebar-link">Local LLM setup</a>
+      </div>
+
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- ─── Installation ─────────────────────────────────── -->
+      <div class="doc-section" id="installation">
+        <span class="section-tag">Getting Started</span>
+        <h1>Installation</h1>
+
+        <p>Almagest requires <strong>Python 3.11+</strong>. Install it from source into a virtual environment:</p>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre>git clone https://github.com/jkbarrerab/almagest.git
+cd almagest
+python3.11 -m venv .venv && source .venv/bin/activate
+pip install -e .</pre>
+        </div>
+
+        <p>After installation <code>almagest</code> is available on your PATH inside the virtual environment. To call it from any directory, add the <code>.venv/bin/</code> folder to your shell profile:</p>
+
+        <div class="code-block">
+          <div class="code-block-header">~/.zshrc or ~/.bashrc</div>
+          <pre>export PATH="/path/to/almagest/.venv/bin:$PATH"</pre>
+        </div>
+      </div>
+
+      <!-- ─── Configuration ────────────────────────────────── -->
+      <div class="doc-section" id="configuration">
+        <span class="section-tag">Getting Started</span>
+        <h1>Configuration</h1>
+
+        <p>Copy the example env file and fill in your credentials. Almagest loads <code>.env</code> from the current directory, then from <code>~/.almagest/.env</code> as a fallback.</p>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre>cp .env.example .env</pre>
+        </div>
+
+        <table class="env-table">
+          <thead>
+            <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>ADS_API_TOKEN</td><td class="default">—</td><td><strong>Required.</strong> Get at ui.adsabs.harvard.edu/user/settings/token (free account).</td></tr>
+            <tr><td>ANTHROPIC_API_KEY</td><td class="default">—</td><td>Required when <code>LLM_PROVIDER=claude</code>. Get at console.anthropic.com.</td></tr>
+            <tr><td>LLM_PROVIDER</td><td class="default">claude</td><td><code>claude</code> or <code>local</code> (any OpenAI-compatible server).</td></tr>
+            <tr><td>CLAUDE_MODEL</td><td class="default">claude-sonnet-4-6</td><td>Any Anthropic model ID.</td></tr>
+            <tr><td>OUTPUT_DIR</td><td class="default">./outputs</td><td>Where report files are written.</td></tr>
+            <tr><td>ADS_MAX_RESULTS</td><td class="default">20</td><td>Maximum papers per ADS search call.</td></tr>
+            <tr><td>WEB_SEARCH_PROVIDER</td><td class="default">none</td><td>Set to <code>tavily</code> to enable the web search tool.</td></tr>
+            <tr><td>TAVILY_API_KEY</td><td class="default">—</td><td>Required when <code>WEB_SEARCH_PROVIDER=tavily</code>.</td></tr>
+            <tr><td>LOCAL_LLM_BASE_URL</td><td class="default">http://localhost:11434/v1</td><td>Base URL for your local LLM server.</td></tr>
+            <tr><td>LOCAL_LLM_MODEL</td><td class="default">llama3.2</td><td>Model name on the local server.</td></tr>
+          </tbody>
+        </table>
+
+        <p>Verify your setup:</p>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre>almagest config-check</pre>
+        </div>
+      </div>
+
+      <!-- ─── Quick start ──────────────────────────────────── -->
+      <div class="doc-section" id="quickstart">
+        <span class="section-tag">Getting Started</span>
+        <h1>Quick start</h1>
+
+        <p>Run any workflow by passing a topic or bibcode as the first argument. All outputs are written to <code>outputs/</code> as Markdown files.</p>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre><span class="comment"># Literature review</span>
+almagest lit "AGN feedback quenching"
+
+<span class="comment"># Deep multi-agent research brief</span>
+almagest deepresearch "JWST constraints on galaxy formation at z > 10"
+
+<span class="comment"># All papers about a specific object</span>
+almagest source "NGC 1068" <span class="flag">--topic</span> <span class="str">"integral field spectroscopy"</span>
+
+<span class="comment"># Simulated peer review</span>
+almagest review 2023ApJ...950...72C
+
+<span class="comment"># Monitor a topic for new papers</span>
+almagest watch add "stellar feedback dwarf galaxies"
+almagest watch run <span class="flag">--digest</span></pre>
+        </div>
+      </div>
+
+      <!-- ─── Extra context ────────────────────────────────── -->
+      <div class="doc-section" id="context">
+        <span class="section-tag">Getting Started</span>
+        <h1>Extra context</h1>
+
+        <p>Every workflow accepts <code>--context</code> and <code>--context-file</code> to inject additional instructions, bibcodes, or constraints directly into the agent's prompt before it starts.</p>
+
+        <div class="code-block">
+          <div class="code-block-header">Inline text</div>
+          <pre>almagest lit <span class="str">"AGN feedback"</span> <span class="flag">--context</span> <span class="str">"Focus on low-mass galaxies (M* &lt; 10^10 Msun) and observational evidence only"</span></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">From a file</div>
+          <pre>almagest review <span class="flag">--pdf</span> paper.pdf <span class="flag">--context-file</span> my_notes.md</pre>
+        </div>
+
+        <p>Use context to steer the research direction, cite specific papers you want considered, restrict the scope, or ask the agent to pay particular attention to a method or claim.</p>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <!-- WORKFLOWS                                            -->
+      <!-- ════════════════════════════════════════════════════ -->
+
+      <!-- ─── deepresearch ────────────────────────────────── -->
+      <div class="doc-section" id="deepresearch">
+        <span class="section-tag">Workflow</span>
+        <h1>deepresearch</h1>
+
+        <p><code>deepresearch</code> is the flagship Almagest workflow. It dispatches multiple researcher agents in sequence to search NASA ADS and the web from different angles, then synthesizes everything into a structured research brief with inline citations and a full BibTeX bibliography.</p>
+
+        <h3>Usage</h3>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre>almagest deepresearch <span class="str">"dark matter halo formation at high redshift"</span>
+almagest deepresearch <span class="str">"mechanisms of AGN feedback quenching star formation"</span>
+almagest deepresearch <span class="str">"JWST constraints on galaxy formation at z > 10"</span>
+
+<span class="comment"># Steer the investigation with extra context</span>
+almagest deepresearch <span class="str">"AGN feedback quenching"</span> \
+  <span class="flag">--context</span> <span class="str">"Focus on low-mass galaxies (M* &lt; 10^10 Msun) and observational evidence only"</span></pre>
+        </div>
+
+        <h3>How it works</h3>
+
+        <ul class="phase-list">
+          <li>
+            <span class="phase-num">01</span>
+            <div class="phase-body">
+              <strong>Search</strong>
+              <p>Multiple ADS queries are issued from different angles — by keyword, author, review articles, citation-ranked, and date-ranked — to ensure broad coverage of the topic.</p>
+            </div>
+          </li>
+          <li>
+            <span class="phase-num">02</span>
+            <div class="phase-body">
+              <strong>Extraction</strong>
+              <p>Abstracts, metadata, and citation counts are fetched for the most relevant papers. The agent traces key claims back to specific bibcodes.</p>
+            </div>
+          </li>
+          <li>
+            <span class="phase-num">03</span>
+            <div class="phase-body">
+              <strong>Synthesis</strong>
+              <p>Findings are cross-referenced and organized into a structured research brief: background, key findings, open questions, and a BibTeX bibliography.</p>
+            </div>
+          </li>
+          <li>
+            <span class="phase-num">04</span>
+            <div class="phase-body">
+              <strong>Citation</strong>
+              <p>Every factual claim is labeled with its source bibcode. Claims that cannot be confirmed are marked <code>[UNVERIFIED]</code> or <code>[INFERRED]</code>.</p>
+            </div>
+          </li>
+        </ul>
+
+        <h3>Output</h3>
+
+        <ul class="output-list">
+          <li><span class="output-key">Summary</span><span class="output-val">A concise overview of the topic and the state of the field.</span></li>
+          <li><span class="output-key">Background</span><span class="output-val">Historical context, foundational papers, and the evolution of the field.</span></li>
+          <li><span class="output-key">Key Findings</span><span class="output-val">The main results and claims from the literature, each with inline citations.</span></li>
+          <li><span class="output-key">Open Questions</span><span class="output-val">Active debates, unresolved tensions, and gaps in the current evidence.</span></li>
+          <li><span class="output-key">Bibliography</span><span class="output-val">A complete BibTeX block for all cited papers, ready to paste into your manuscript.</span></li>
+        </ul>
+
+        <p>Saved to: <code>outputs/&lt;slug&gt;-deep-research.md</code></p>
+
+        <h3>Customization</h3>
+        <p>You can steer the research by being specific in your prompt. Narrow topics produce focused, evidence-dense briefs. Broad topics produce survey-style overviews. Use <code>--context</code> to restrict scope, specify a redshift range, prioritize certain instruments, or ask the agent to include specific papers you already know about.</p>
+      </div>
+
+      <!-- ─── lit ──────────────────────────────────────────── -->
+      <div class="doc-section" id="lit">
+        <span class="section-tag">Workflow</span>
+        <h1>lit</h1>
+
+        <p><code>lit</code> produces a systematic literature review from primary sources: foundational papers, key milestones, the current consensus, active debates, and open gaps. It is designed as background research before starting a new project or writing a paper introduction.</p>
+
+        <h3>Usage</h3>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre>almagest lit <span class="str">"stellar feedback in dwarf galaxies"</span>
+almagest lit <span class="str">"fast radio bursts progenitor models"</span>
+almagest lit <span class="str">"integral field spectroscopy IFU surveys"</span>
+
+<span class="comment"># Include specific papers you want covered</span>
+almagest lit <span class="str">"oxygen abundance gradients"</span> \
+  <span class="flag">--context</span> <span class="str">"Include IFU surveys only. Make sure to cover:
+  - 2014A&amp;A...563A..49S (CALIFA survey)
+  - 2018MNRAS.481.2299S (MaNGA gradients)"</span></pre>
+        </div>
+
+        <h3>How it works</h3>
+
+        <p>The agent issues multiple ADS queries with different strategies — most-cited papers for seminal work, <code>doctype:review</code> for review articles, date-ranked results for recent developments, and abstract-keyword searches for methodological coverage. It fetches full metadata and abstracts for the top papers, then synthesizes findings into a structured review that maps the consensus and flags active debates.</p>
+
+        <h3>Output</h3>
+
+        <ul class="output-list">
+          <li><span class="output-key">Introduction</span><span class="output-val">Definition of the topic and why it matters.</span></li>
+          <li><span class="output-key">Foundational Work</span><span class="output-val">Seminal papers that established the field, with citation counts.</span></li>
+          <li><span class="output-key">Current Consensus</span><span class="output-val">What is well established and broadly agreed upon.</span></li>
+          <li><span class="output-key">Active Debates</span><span class="output-val">Conflicting results, competing models, and ongoing controversies.</span></li>
+          <li><span class="output-key">Open Questions</span><span class="output-val">What remains unknown, poorly constrained, or underexplored.</span></li>
+          <li><span class="output-key">Bibliography</span><span class="output-val">BibTeX for all cited papers.</span></li>
+        </ul>
+
+        <p>Saved to: <code>outputs/&lt;slug&gt;-lit-review.md</code></p>
+
+        <h3>Customization</h3>
+        <p>Restrict the review to a specific time window (<code>"Focus on work published after 2015"</code>), a particular instrument (<code>"CALIFA and MaNGA only"</code>), or a redshift range. You can also seed it with bibcodes you want included and ask the agent to explain how they relate to the overall narrative.</p>
+      </div>
+
+      <!-- ─── source ───────────────────────────────────────── -->
+      <div class="doc-section" id="source">
+        <span class="section-tag">Workflow</span>
+        <h1>source</h1>
+
+        <p><code>source</code> searches NASA ADS for all literature about a specific astronomical object or sky position, resolves the name via SIMBAD/NED, and synthesizes a complete object overview with a discovery timeline, instrument coverage, and consensus findings.</p>
+
+        <h3>Usage</h3>
+
+        <div class="code-block">
+          <div class="code-block-header">By object name</div>
+          <pre>almagest source <span class="str">"NGC 1068"</span>
+almagest source <span class="str">"M87"</span> <span class="flag">--topic</span> <span class="str">"jet kinematics"</span>
+almagest source <span class="str">"Crab Nebula"</span> <span class="flag">--topic</span> <span class="str">"pulsar wind nebula"</span></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">By sky position</div>
+          <pre>almagest source <span class="flag">--ra</span> 40.669 <span class="flag">--dec</span> -0.014 <span class="flag">--radius</span> 5arcmin
+almagest source <span class="flag">--ra</span> 187.706 <span class="flag">--dec</span> 12.391 <span class="flag">--radius</span> 2arcmin <span class="flag">--topic</span> <span class="str">"radio jet"</span></pre>
+        </div>
+
+        <div class="callout">
+          <strong>Radius formats</strong> — accepted values: <code>5arcmin</code>, <code>30arcsec</code>, <code>0.5deg</code>, or a plain number (treated as arcmin). Maximum radius is 1 degree.
+        </div>
+
+        <h3>How it works</h3>
+
+        <p>The agent first runs a broad <code>ads_search_object</code> call to find all ADS papers about the object (resolved via SIMBAD/NED). If a science topic is specified, a second filtered call narrows the result set. For positional queries, a cone-search is performed using ADS's position resolver. The agent then fetches full abstracts for the top 8–10 papers and synthesizes a structured report.</p>
+
+        <h3>Output</h3>
+
+        <ul class="output-list">
+          <li><span class="output-key">Object Overview</span><span class="output-val">Object type, distance, redshift, and notable characteristics with the defining paper.</span></li>
+          <li><span class="output-key">Papers Found</span><span class="output-val">Total count in ADS and count matching the topic filter.</span></li>
+          <li><span class="output-key">Key Papers</span><span class="output-val">Table of the top 10–15 papers with bibcode, authors, year, topic, and citation count.</span></li>
+          <li><span class="output-key">Discovery Timeline</span><span class="output-val">Chronological list of key findings and observations, with instrument and bibcode.</span></li>
+          <li><span class="output-key">Instrument Coverage</span><span class="output-val">Which telescopes and surveys have observed this source.</span></li>
+          <li><span class="output-key">Consensus &amp; Open Questions</span><span class="output-val">What is well-established vs. still debated.</span></li>
+          <li><span class="output-key">Bibliography</span><span class="output-val">BibTeX for all cited papers.</span></li>
+        </ul>
+
+        <p>Saved to: <code>outputs/&lt;slug&gt;-source-lit.md</code></p>
+
+        <h3>Customization</h3>
+        <p>Use <code>--topic</code> to filter results to a specific science topic (e.g. <code>"integral field spectroscopy"</code>, <code>"AGN"</code>, <code>"star formation"</code>). Use <code>--context</code> to restrict to a specific epoch or instrument: <code>"Focus on MUSE and SINFONI observations published after 2015"</code>.</p>
+      </div>
+
+      <!-- ─── review ───────────────────────────────────────── -->
+      <div class="doc-section" id="review">
+        <span class="section-tag">Workflow</span>
+        <h1>review</h1>
+
+        <p><code>review</code> simulates a peer review of a paper. It accepts an ADS bibcode, a local PDF, or both, and produces a structured review with severity-graded issues and an actionable revision plan.</p>
+
+        <h3>Usage</h3>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre><span class="comment"># Review by ADS bibcode</span>
+almagest review 2023ApJ...950...72C
+
+<span class="comment"># Review a local PDF (preprint, paywalled paper, or your own manuscript)</span>
+almagest review <span class="flag">--pdf</span> ~/Downloads/my_paper.pdf
+
+<span class="comment"># Both: full PDF text + ADS metadata and related-work search</span>
+almagest review 2023ApJ...950...72C <span class="flag">--pdf</span> ~/Downloads/paper.pdf
+
+<span class="comment"># Include papers you want the reviewer to consider</span>
+almagest review <span class="flag">--pdf</span> paper.pdf \
+  <span class="flag">--context</span> <span class="str">"Consider these related papers:
+  - 2021ApJ...910...72C  (metallicity gradients, same method)
+  - 2019MNRAS.484.5230R  (IFU methodology reference)
+  Pay attention to whether systematic errors in abundance calibration are propagated."</span></pre>
+        </div>
+
+        <h3>How it works</h3>
+
+        <p>The agent reads the full paper text (from the PDF or ADS abstract) and evaluates it against standard peer review criteria: novelty, methodology, statistical rigor, discussion of limitations, and citation completeness. It then searches ADS for the most relevant related work to assess whether the authors have missed important references. Each issue found is tagged with a severity level.</p>
+
+        <h3>Output</h3>
+
+        <ul class="output-list">
+          <li><span class="output-key">Summary</span><span class="output-val">One-paragraph assessment of the paper's contribution and overall quality.</span></li>
+          <li><span class="output-key">Strengths</span><span class="output-val">What the paper does well.</span></li>
+          <li><span class="output-key">Issues</span><span class="output-val">Graded list: <code>CRITICAL</code> · <code>MAJOR</code> · <code>MINOR</code> · <code>COSMETIC</code>.</span></li>
+          <li><span class="output-key">Missing Citations</span><span class="output-val">Relevant papers found in ADS that were not cited.</span></li>
+          <li><span class="output-key">Revision Plan</span><span class="output-val">Numbered action list of changes recommended before publication.</span></li>
+          <li><span class="output-key">Recommendation</span><span class="output-val">Accept / Minor revision / Major revision / Reject, with rationale.</span></li>
+        </ul>
+
+        <p>Saved to: <code>outputs/&lt;slug&gt;-peer-review.md</code></p>
+
+        <h3>Customization</h3>
+        <p>Point the reviewer toward specific concerns with <code>--context</code>: ask it to focus on the statistical treatment, compare the methodology to a specific reference, or check whether a claim is supported by a particular paper. Provide a <code>--context-file</code> with your own notes to make the review reproducible across sessions.</p>
+      </div>
+
+      <!-- ─── audit ────────────────────────────────────────── -->
+      <div class="doc-section" id="audit">
+        <span class="section-tag">Workflow</span>
+        <h1>audit</h1>
+
+        <p><code>audit</code> checks whether any code repository linked to a paper (GitHub, Zenodo, ASCL) actually reproduces the methods, parameters, and results described in the text. It flags mismatches between the paper and the code.</p>
+
+        <h3>Usage</h3>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre>almagest audit 2022ApJ...935..167V
+almagest audit 2019JOSS....4.1414F
+
+<span class="comment"># Focus the audit on a specific claim</span>
+almagest audit 2022ApJ...935..167V \
+  <span class="flag">--context</span> <span class="str">"Check whether the stellar mass function parameters in Table 2
+  match the values hardcoded in the fitting routine."</span></pre>
+        </div>
+
+        <h3>How it works</h3>
+
+        <p>The agent fetches the paper's metadata and abstract from ADS, then searches the linked data and software identifiers for a public code repository. It clones or inspects the repository, compares key numerical values (parameters, thresholds, constants) between the paper and the code, and checks that the described analysis steps can be traced to actual code paths. Each discrepancy is reported with the relevant line numbers or file paths.</p>
+
+        <h3>Output</h3>
+
+        <ul class="output-list">
+          <li><span class="output-key">Paper Summary</span><span class="output-val">Key methods, parameters, and results as described in the text.</span></li>
+          <li><span class="output-key">Code Found</span><span class="output-val">Repository URL and description of what the code does.</span></li>
+          <li><span class="output-key">Matches</span><span class="output-val">Claims that are correctly reproduced in the code.</span></li>
+          <li><span class="output-key">Mismatches</span><span class="output-val">Discrepancies between the paper and the code, with locations.</span></li>
+          <li><span class="output-key">Missing</span><span class="output-val">Steps described in the paper with no corresponding code.</span></li>
+          <li><span class="output-key">Verdict</span><span class="output-val">Overall reproducibility assessment.</span></li>
+        </ul>
+
+        <p>Saved to: <code>outputs/&lt;slug&gt;-audit.md</code></p>
+      </div>
+
+      <!-- ─── replicate ─────────────────────────────────────── -->
+      <div class="doc-section" id="replicate">
+        <span class="section-tag">Workflow</span>
+        <h1>replicate</h1>
+
+        <p><code>replicate</code> generates a step-by-step plan to independently reproduce the key results of a paper, covering data access, software environment, expected intermediate outputs, and validation checks. Add <code>--execute</code> to run the first steps in a sandboxed shell.</p>
+
+        <h3>Usage</h3>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre><span class="comment"># Plan only (safe — no code runs)</span>
+almagest replicate 2020MNRAS.499..230B
+
+<span class="comment"># Plan + execute (clones repos and runs scripts)</span>
+almagest replicate 2020MNRAS.499..230B <span class="flag">--execute</span>
+
+<span class="comment"># Provide environment constraints</span>
+almagest replicate 2020MNRAS.499..230B \
+  <span class="flag">--context</span> <span class="str">"I only have access to public SDSS data. Skip any steps requiring
+  proprietary datasets. Target Python 3.11."</span></pre>
+        </div>
+
+        <h3>Output</h3>
+
+        <ul class="output-list">
+          <li><span class="output-key">Data Access</span><span class="output-val">Where to download the required datasets and any access restrictions.</span></li>
+          <li><span class="output-key">Environment</span><span class="output-val">Required packages, versions, and setup commands.</span></li>
+          <li><span class="output-key">Steps</span><span class="output-val">Numbered replication plan from raw data to final figures.</span></li>
+          <li><span class="output-key">Expected Outputs</span><span class="output-val">What each step should produce, with validation criteria.</span></li>
+          <li><span class="output-key">Caveats</span><span class="output-val">Potential obstacles: missing data, stochastic components, hardware requirements.</span></li>
+        </ul>
+
+        <p>Saved to: <code>outputs/&lt;slug&gt;-replication.md</code></p>
+      </div>
+
+      <!-- ─── compare ──────────────────────────────────────── -->
+      <div class="doc-section" id="compare">
+        <span class="section-tag">Workflow</span>
+        <h1>compare</h1>
+
+        <p><code>compare</code> places competing theories, methods, or results side by side and produces an agreement and conflict matrix. Useful for understanding where the literature converges and where it disagrees.</p>
+
+        <h3>Usage</h3>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre>almagest compare <span class="str">"NFW vs Einasto dark matter density profiles"</span>
+almagest compare <span class="str">"ram pressure stripping vs AGN feedback as quenching mechanism"</span>
+almagest compare <span class="str">"photometric vs spectroscopic redshift accuracy for survey science"</span>
+
+<span class="comment"># Guide the comparison dimensions</span>
+almagest compare <span class="str">"NFW vs Einasto dark matter profiles"</span> \
+  <span class="flag">--context</span> <span class="str">"Focus on: (1) fit quality in dwarf galaxies,
+  (2) behaviour at small radii, (3) N-body simulation results post-2015."</span></pre>
+        </div>
+
+        <h3>Output</h3>
+
+        <ul class="output-list">
+          <li><span class="output-key">Overview</span><span class="output-val">Brief description of each approach being compared.</span></li>
+          <li><span class="output-key">Agreement Matrix</span><span class="output-val">Dimensions on which the sources agree, with supporting citations.</span></li>
+          <li><span class="output-key">Conflict Matrix</span><span class="output-val">Dimensions on which the sources disagree, with the evidence on each side.</span></li>
+          <li><span class="output-key">Verdict</span><span class="output-val">Current state of the debate: resolved, ongoing, or context-dependent.</span></li>
+          <li><span class="output-key">Bibliography</span><span class="output-val">BibTeX for all cited papers.</span></li>
+        </ul>
+
+        <p>Saved to: <code>outputs/&lt;slug&gt;-comparison.md</code></p>
+      </div>
+
+      <!-- ─── draft ────────────────────────────────────────── -->
+      <div class="doc-section" id="draft">
+        <span class="section-tag">Workflow</span>
+        <h1>draft</h1>
+
+        <p><code>draft</code> researches a topic from NASA ADS and produces a full paper-style draft — abstract through conclusions — with inline citations and a BibTeX bibliography. It is not submission-ready, but is a solid starting point that accelerates the writing process.</p>
+
+        <h3>Usage</h3>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre>almagest draft <span class="str">"the role of environment in galaxy quenching at z ~ 0.5"</span>
+almagest draft <span class="str">"a review of chemical abundance gradients in nearby galaxies"</span>
+
+<span class="comment"># Seed the draft with your own data and target journal</span>
+almagest draft <span class="str">"chemical abundance gradients in nearby galaxies"</span> \
+  <span class="flag">--context</span> <span class="str">"Assume we have MaNGA IFU data for 500 galaxies.
+  Emphasise comparison with CALIFA results. Target audience: ApJ."</span></pre>
+        </div>
+
+        <h3>Output</h3>
+
+        <ul class="output-list">
+          <li><span class="output-key">Abstract</span><span class="output-val">200-word structured abstract.</span></li>
+          <li><span class="output-key">Introduction</span><span class="output-val">Motivation, context, and statement of the problem.</span></li>
+          <li><span class="output-key">Background / Methods</span><span class="output-val">Review of relevant prior work and proposed methodology.</span></li>
+          <li><span class="output-key">Results &amp; Discussion</span><span class="output-val">Key findings with inline citations and interpretation.</span></li>
+          <li><span class="output-key">Conclusions</span><span class="output-val">Summary and future directions.</span></li>
+          <li><span class="output-key">Bibliography</span><span class="output-val">Complete BibTeX block.</span></li>
+        </ul>
+
+        <p>Saved to: <code>outputs/&lt;slug&gt;-draft.md</code></p>
+
+        <h3>Customization</h3>
+        <p>Describe your data, instruments, or preliminary results in <code>--context</code> so the draft reflects your actual situation rather than a generic treatment. Specify a target journal to adjust the writing style and reference conventions.</p>
+      </div>
+
+      <!-- ─── autoresearch ─────────────────────────────────── -->
+      <div class="doc-section" id="autoresearch">
+        <span class="section-tag">Workflow</span>
+        <h1>autoresearch</h1>
+
+        <p><code>autoresearch</code> starts from a seed idea and runs an autonomous loop: form a hypothesis, search ADS for evidence, evaluate support, refine the hypothesis, and repeat. It continues until the evidence converges or <code>--max-rounds</code> is reached.</p>
+
+        <h3>Usage</h3>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre><span class="comment"># Default 5 rounds</span>
+almagest autoresearch <span class="str">"galaxy quenching driven by AGN feedback"</span>
+
+<span class="comment"># More thorough</span>
+almagest autoresearch <span class="str">"origin of the stellar mass-metallicity relation"</span> <span class="flag">--max-rounds</span> 10
+
+<span class="comment"># Quick exploration</span>
+almagest autoresearch <span class="str">"tidally stripped stars as probes of dark matter"</span> <span class="flag">--max-rounds</span> 3
+
+<span class="comment"># Constrain the hypothesis space</span>
+almagest autoresearch <span class="str">"galaxy quenching at cosmic noon"</span> \
+  <span class="flag">--context</span> <span class="str">"Restrict to observational evidence at 1.5 &lt; z &lt; 2.5.
+  Prioritise JWST and ALMA results published after 2022."</span></pre>
+        </div>
+
+        <h3>How it works</h3>
+
+        <p>Each round the agent (1) states its current best hypothesis, (2) searches ADS for papers that could confirm or refute it, (3) evaluates the evidence and updates its confidence score, and (4) refines the hypothesis for the next round. The final report records each hypothesis, the evidence considered, and the confidence trajectory across rounds.</p>
+
+        <div class="callout callout-blue">
+          <strong>Note:</strong> This workflow performs multiple ADS search rounds and can consume significant API quota. Use <code>--max-rounds 3</code> for quick explorations.
+        </div>
+
+        <h3>Output</h3>
+
+        <ul class="output-list">
+          <li><span class="output-key">Hypothesis log</span><span class="output-val">The hypothesis at each round, with the evidence considered.</span></li>
+          <li><span class="output-key">Evidence summary</span><span class="output-val">Papers supporting and contradicting the final hypothesis.</span></li>
+          <li><span class="output-key">Confidence trajectory</span><span class="output-val">How support for the hypothesis changed across rounds.</span></li>
+          <li><span class="output-key">Final assessment</span><span class="output-val">The best-supported hypothesis and its remaining uncertainties.</span></li>
+          <li><span class="output-key">Bibliography</span><span class="output-val">BibTeX for all papers consulted.</span></li>
+        </ul>
+
+        <p>Saved to: <code>outputs/&lt;slug&gt;-autoresearch.md</code></p>
+      </div>
+
+      <!-- ─── watch ────────────────────────────────────────── -->
+      <div class="doc-section" id="watch">
+        <span class="section-tag">Workflow</span>
+        <h1>watch</h1>
+
+        <p><code>watch</code> registers a saved ADS search and reports new papers each time you run <code>watch run</code>. With <code>--digest</code>, it asks the agent to summarize what is new and notable since the last check.</p>
+
+        <h3>Usage</h3>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre><span class="comment"># Add a watch (topic text becomes the ADS query)</span>
+almagest watch add <span class="str">"galaxy quenching"</span>
+
+<span class="comment"># Add a watch with a custom ADS query</span>
+almagest watch add <span class="str">"IFU metallicity gradients"</span> \
+  <span class="flag">--query</span> <span class="str">"abs:metallicity abs:gradient (bibstem:ApJ OR bibstem:MNRAS) year:2024-2025"</span>
+
+<span class="comment"># Watch a specific author's new papers</span>
+almagest watch add <span class="str">"Pillepich new papers"</span> \
+  <span class="flag">--query</span> <span class="str">"author:Pillepich,A year:2024-2025"</span>
+
+<span class="comment"># List all registered watches</span>
+almagest watch list
+
+<span class="comment"># Check for new papers</span>
+almagest watch run
+
+<span class="comment"># Check + generate an AI digest</span>
+almagest watch run <span class="flag">--digest</span>
+
+<span class="comment"># Remove a watch</span>
+almagest watch remove galaxy-quenching</pre>
+        </div>
+
+        <h3>Output</h3>
+
+        <p>Without <code>--digest</code>: a plain list of new papers since the last run (bibcode, authors, title, citation count).</p>
+        <p>With <code>--digest</code>: an AI-written summary of the new papers, grouped by sub-topic, with brief annotations explaining what each paper contributes.</p>
+
+        <p>Saved to: <code>outputs/&lt;slug&gt;-digest-&lt;date&gt;.md</code></p>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <!-- UTILITIES                                            -->
+      <!-- ════════════════════════════════════════════════════ -->
+
+      <div class="doc-section" id="search">
+        <span class="section-tag">Utility</span>
+        <h1>search</h1>
+
+        <p>Quick ADS paper search that prints results directly to the terminal without running a full workflow.</p>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre>almagest search <span class="str">"dark matter substructure year:2023-2025"</span> <span class="flag">--limit</span> 15
+almagest search <span class="str">"author:Schaye,J bibstem:MNRAS"</span> <span class="flag">--sort</span> <span class="str">"date desc"</span></pre>
+        </div>
+      </div>
+
+      <div class="doc-section" id="show">
+        <span class="section-tag">Utility</span>
+        <h1>show</h1>
+
+        <p>Fetch and display the full metadata and abstract for a single ADS bibcode.</p>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre>almagest show 1997ApJ...490..493N</pre>
+        </div>
+      </div>
+
+      <div class="doc-section" id="config-check">
+        <span class="section-tag">Utility</span>
+        <h1>config-check</h1>
+
+        <p>Verifies that all required environment variables are set and reachable before running any workflow.</p>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre>almagest config-check</pre>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <!-- REFERENCE                                            -->
+      <!-- ════════════════════════════════════════════════════ -->
+
+      <!-- ─── ADS syntax ───────────────────────────────────── -->
+      <div class="doc-section" id="ads-syntax">
+        <span class="section-tag">Reference</span>
+        <h1>ADS query syntax</h1>
+
+        <p>Almagest uses full ADS Solr query syntax. These work in <code>almagest search</code>, in <code>watch add --query</code>, and in the agent's tool calls.</p>
+
+        <table class="env-table">
+          <thead>
+            <tr><th>Goal</th><th>Query example</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Keyword in abstract</td><td><code>abs:"stellar feedback"</code></td></tr>
+            <tr><td>Keyword in title</td><td><code>title:"dark matter halo"</code></td></tr>
+            <tr><td>Author</td><td><code>author:"Navarro, J"</code></td></tr>
+            <tr><td>Year range</td><td><code>year:2020-2025</code></td></tr>
+            <tr><td>Specific journal</td><td><code>bibstem:ApJ</code> · <code>bibstem:MNRAS</code> · <code>bibstem:A%26A</code></td></tr>
+            <tr><td>Review articles</td><td><code>doctype:review</code></td></tr>
+            <tr><td>Open access only</td><td><code>property:openaccess</code></td></tr>
+            <tr><td>Software papers</td><td><code>property:software</code></td></tr>
+            <tr><td>arXiv class</td><td><code>arxiv_class:astro-ph.GA</code></td></tr>
+            <tr><td>Refereed only</td><td><code>property:refereed</code></td></tr>
+            <tr><td>Papers citing X</td><td><code>citations(bibcode:1997ApJ...490..493N)</code></td></tr>
+            <tr><td>References of X</td><td><code>references(bibcode:2005ApJ...624L..85M)</code></td></tr>
+            <tr><td>Combined</td><td><code>abs:"quenching" author:"Peng" year:2010-2020 property:refereed</code></td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <strong>Object searches</strong> — to search for a named astronomical object, use <code>almagest source "NGC 1068"</code> rather than constructing an <code>object:</code> query manually. The <code>source</code> workflow handles SIMBAD/NED resolution and graceful fallbacks automatically.
+        </div>
+      </div>
+
+      <!-- ─── Output format ────────────────────────────────── -->
+      <div class="doc-section" id="output-format">
+        <span class="section-tag">Reference</span>
+        <h1>Output format</h1>
+
+        <p>All generated documents follow the same conventions so outputs are consistent and citable.</p>
+
+        <h2>Inline citations</h2>
+        <p>Every factual claim is cited in the format:</p>
+        <div class="code-block">
+          <pre>(Navarro et al. 1997, `1997ApJ...490..493N`)</pre>
+        </div>
+
+        <h2>Claim labels</h2>
+        <p>Claims that cannot be directly verified receive a label:</p>
+        <table class="env-table">
+          <thead>
+            <tr><th>Label</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>(no label)</td><td>Directly supported by the cited paper.</td></tr>
+            <tr><td>[INFERRED]</td><td>Logical inference from cited evidence — not stated explicitly in the source.</td></tr>
+            <tr><td>[UNVERIFIED]</td><td>Could not be confirmed against the cited source.</td></tr>
+            <tr><td>[SPECULATIVE]</td><td>Author's extrapolation, not drawn from the literature.</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Provenance sidecar</h2>
+        <p>Every output file gets a companion <code>.provenance.md</code> file that records:</p>
+        <ul>
+          <li>Generation timestamp (UTC)</li>
+          <li>Workflow that produced it</li>
+          <li>All ADS bibcodes and URLs consulted</li>
+        </ul>
+
+        <h2>File naming</h2>
+        <table class="env-table">
+          <thead>
+            <tr><th>Workflow</th><th>Output file</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>deepresearch</td><td><code>outputs/&lt;slug&gt;-deep-research.md</code></td></tr>
+            <tr><td>lit</td><td><code>outputs/&lt;slug&gt;-lit-review.md</code></td></tr>
+            <tr><td>source</td><td><code>outputs/&lt;slug&gt;-source-lit.md</code></td></tr>
+            <tr><td>review</td><td><code>outputs/&lt;slug&gt;-peer-review.md</code></td></tr>
+            <tr><td>audit</td><td><code>outputs/&lt;slug&gt;-audit.md</code></td></tr>
+            <tr><td>replicate</td><td><code>outputs/&lt;slug&gt;-replication.md</code></td></tr>
+            <tr><td>compare</td><td><code>outputs/&lt;slug&gt;-comparison.md</code></td></tr>
+            <tr><td>draft</td><td><code>outputs/&lt;slug&gt;-draft.md</code></td></tr>
+            <tr><td>autoresearch</td><td><code>outputs/&lt;slug&gt;-autoresearch.md</code></td></tr>
+            <tr><td>watch --digest</td><td><code>outputs/&lt;slug&gt;-digest-&lt;date&gt;.md</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ─── Local LLM ────────────────────────────────────── -->
+      <div class="doc-section" id="local-llm">
+        <span class="section-tag">Reference</span>
+        <h1>Local LLM setup</h1>
+
+        <p>Almagest works with any OpenAI-compatible local server. Set <code>LLM_PROVIDER=local</code> in your <code>.env</code> and point it at your server.</p>
+
+        <h2>Ollama</h2>
+
+        <div class="code-block">
+          <div class="code-block-header">shell</div>
+          <pre><span class="comment"># Install Ollama from https://ollama.com, then:</span>
+ollama pull llama3.2
+ollama serve</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">.env</div>
+          <pre>LLM_PROVIDER=local
+LOCAL_LLM_BASE_URL=http://localhost:11434/v1
+LOCAL_LLM_MODEL=llama3.2
+LOCAL_LLM_API_KEY=ollama</pre>
+        </div>
+
+        <h2>LM Studio / vLLM</h2>
+
+        <p>Start your server and set <code>LOCAL_LLM_BASE_URL</code> to its base URL. Set <code>LOCAL_LLM_MODEL</code> to the model name as it appears in the server.</p>
+
+        <div class="callout">
+          <strong>Tool-use support</strong> — models with native function calling (Qwen 2.5, Llama 3.1+, Mistral) give the best results. Models without it fall back to text-based tool calling, which is less reliable for complex workflows.
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Highlight active sidebar link based on scroll position
+    (function () {
+      const sections = document.querySelectorAll('.doc-section[id]');
+      const links = document.querySelectorAll('.sidebar-link');
+
+      function onScroll() {
+        let current = '';
+        sections.forEach(s => {
+          const top = s.getBoundingClientRect().top;
+          if (top <= 100) current = s.id;
+        });
+        links.forEach(l => {
+          l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+        });
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+
+</body>
+</html>
