@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started — Almagest Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="../index.html" class="topnav-logo">ALMAGEST</a>
+  <span class="topnav-sep">/</span>
+  <span class="topnav-page">Docs</span>
+  <ul class="topnav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="https://github.com/jkbarrerab/almagest">GitHub</a></li>
+  </ul>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+
+    <!-- Installation -->
+    <div class="doc-section" id="installation">
+      <span class="section-tag">Getting Started</span>
+      <h1>Installation</h1>
+
+      <p>Almagest requires <strong>Python 3.11+</strong>. Clone the repo and install it into a virtual environment:</p>
+
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre>git clone https://github.com/jkbarrerab/almagest.git
+cd almagest
+python3.11 -m venv .venv && source .venv/bin/activate
+pip install -e .</pre>
+      </div>
+
+      <p>After installation <code>almagest</code> is on your PATH inside the virtual environment. To call it from any directory without the <code>.venv/bin/</code> prefix, add it to your shell profile:</p>
+
+      <div class="code-block">
+        <div class="code-block-header">~/.zshrc or ~/.bashrc</div>
+        <pre>export PATH="/path/to/almagest/.venv/bin:$PATH"</pre>
+      </div>
+    </div>
+
+    <!-- Configuration -->
+    <div class="doc-section" id="configuration">
+      <span class="section-tag">Getting Started</span>
+      <h1>Configuration</h1>
+
+      <p>Copy the example env file and fill in your credentials. Almagest loads <code>.env</code> from the current directory first, then falls back to <code>~/.almagest/.env</code>.</p>
+
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre>cp .env.example .env</pre>
+      </div>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ADS_API_TOKEN</td><td class="dim">—</td><td><strong>Required.</strong> Get at ui.adsabs.harvard.edu/user/settings/token (free account).</td></tr>
+          <tr><td>ANTHROPIC_API_KEY</td><td class="dim">—</td><td>Required when <code>LLM_PROVIDER=claude</code>. Get at console.anthropic.com.</td></tr>
+          <tr><td>LLM_PROVIDER</td><td class="dim">claude</td><td><code>claude</code> or <code>local</code> (any OpenAI-compatible server).</td></tr>
+          <tr><td>CLAUDE_MODEL</td><td class="dim">claude-sonnet-4-6</td><td>Any Anthropic model ID.</td></tr>
+          <tr><td>OUTPUT_DIR</td><td class="dim">./outputs</td><td>Where report files are written.</td></tr>
+          <tr><td>ADS_MAX_RESULTS</td><td class="dim">20</td><td>Maximum papers per ADS search call.</td></tr>
+          <tr><td>WEB_SEARCH_PROVIDER</td><td class="dim">none</td><td>Set to <code>tavily</code> to enable web search.</td></tr>
+          <tr><td>TAVILY_API_KEY</td><td class="dim">—</td><td>Required when <code>WEB_SEARCH_PROVIDER=tavily</code>.</td></tr>
+          <tr><td>LOCAL_LLM_BASE_URL</td><td class="dim">localhost:11434/v1</td><td>Base URL for a local LLM server.</td></tr>
+          <tr><td>LOCAL_LLM_MODEL</td><td class="dim">llama3.2</td><td>Model name on the local server.</td></tr>
+        </tbody>
+      </table>
+
+      <p>Verify your setup before running any workflow:</p>
+
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre>almagest config-check</pre>
+      </div>
+    </div>
+
+    <!-- Quick start -->
+    <div class="doc-section" id="quickstart">
+      <span class="section-tag">Getting Started</span>
+      <h1>Quick start</h1>
+
+      <p>Pass a topic or bibcode as the first argument to any workflow. Outputs are written to <code>outputs/</code> as Markdown files with a <code>.provenance.md</code> sidecar.</p>
+
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre><span class="comment"># Literature review</span>
+almagest lit <span class="str">"AGN feedback quenching"</span>
+
+<span class="comment"># Deep multi-agent research brief</span>
+almagest deepresearch <span class="str">"JWST constraints on galaxy formation at z > 10"</span>
+
+<span class="comment"># All papers about a specific astronomical object</span>
+almagest source <span class="str">"NGC 1068"</span> <span class="flag">--topic</span> <span class="str">"integral field spectroscopy"</span>
+
+<span class="comment"># Simulated peer review of a local PDF</span>
+almagest review <span class="flag">--pdf</span> ~/Downloads/my_paper.pdf
+
+<span class="comment"># Monitor a topic for new papers</span>
+almagest watch add <span class="str">"stellar feedback dwarf galaxies"</span>
+almagest watch run <span class="flag">--digest</span></pre>
+      </div>
+
+      <p>See the <a href="workflows.html">Workflows</a> page for the full documentation of each command.</p>
+    </div>
+
+    <!-- Extra context -->
+    <div class="doc-section" id="context">
+      <span class="section-tag">Getting Started</span>
+      <h1>Extra context</h1>
+
+      <p>Every workflow accepts <code>--context</code> and <code>--context-file</code> to inject additional instructions, bibcodes, or constraints into the agent's prompt before it starts.</p>
+
+      <div class="code-block">
+        <div class="code-block-header">Inline text</div>
+        <pre>almagest lit <span class="str">"AGN feedback"</span> \
+  <span class="flag">--context</span> <span class="str">"Focus on low-mass galaxies (M* &lt; 10^10 Msun) and observational evidence only"</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header">From a file</div>
+        <pre>almagest review <span class="flag">--pdf</span> paper.pdf <span class="flag">--context-file</span> my_notes.md</pre>
+      </div>
+
+      <p>Use context to steer the research direction, provide bibcodes you want considered, restrict scope to a time window or instrument, or ask the agent to focus on a particular claim or method.</p>
+
+      <div class="callout">
+        <strong>Tip:</strong> Save context files for recurring tasks — e.g. a <code>review_notes.md</code> with your standard review criteria that you pass to every <code>almagest review</code> run.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="nav.js"></script>
+<script>
+  // Highlight active sidebar link on scroll
+  (function () {
+    const sections = document.querySelectorAll('.doc-section[id]');
+    const links = document.querySelectorAll('.sidebar-link');
+    function onScroll() {
+      let current = '';
+      sections.forEach(s => { if (s.getBoundingClientRect().top <= 90) current = s.id; });
+      links.forEach(l => {
+        const href = l.getAttribute('href');
+        if (href === 'index.html') l.classList.toggle('active', true);
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reference — Almagest Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="../index.html" class="topnav-logo">ALMAGEST</a>
+  <span class="topnav-sep">/</span>
+  <span class="topnav-page">Reference</span>
+  <ul class="topnav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="https://github.com/jkbarrerab/almagest">GitHub</a></li>
+  </ul>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+
+    <!-- ADS query syntax -->
+    <div class="doc-section" id="ads-syntax">
+      <span class="section-tag">Reference</span>
+      <h1>ADS query syntax</h1>
+
+      <p>Almagest uses the full NASA ADS Solr query syntax. These operators work in <code>almagest search</code>, in <code>watch add --query</code>, and in the agent's internal tool calls.</p>
+
+      <table class="doc-table">
+        <thead><tr><th>Goal</th><th>Query example</th></tr></thead>
+        <tbody>
+          <tr><td>Keyword in abstract</td><td><code>abs:"stellar feedback"</code></td></tr>
+          <tr><td>Keyword in title</td><td><code>title:"dark matter halo"</code></td></tr>
+          <tr><td>Author</td><td><code>author:"Navarro, J"</code></td></tr>
+          <tr><td>Year range</td><td><code>year:2020-2025</code></td></tr>
+          <tr><td>Specific journal</td><td><code>bibstem:ApJ</code> · <code>bibstem:MNRAS</code> · <code>bibstem:A%26A</code></td></tr>
+          <tr><td>Review articles</td><td><code>doctype:review</code></td></tr>
+          <tr><td>Open access only</td><td><code>property:openaccess</code></td></tr>
+          <tr><td>Refereed only</td><td><code>property:refereed</code></td></tr>
+          <tr><td>Software papers</td><td><code>property:software</code></td></tr>
+          <tr><td>arXiv class</td><td><code>arxiv_class:astro-ph.GA</code></td></tr>
+          <tr><td>Papers citing X</td><td><code>citations(bibcode:1997ApJ...490..493N)</code></td></tr>
+          <tr><td>References of X</td><td><code>references(bibcode:2005ApJ...624L..85M)</code></td></tr>
+          <tr><td>Boolean</td><td><code>abs:"AGN" AND (bibstem:ApJ OR bibstem:MNRAS)</code></td></tr>
+          <tr><td>Combined</td><td><code>abs:"quenching" author:"Peng" year:2010-2020 property:refereed</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2>Sort options</h2>
+      <table class="doc-table">
+        <thead><tr><th>Value</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>citation_count desc</td><td>Most-cited papers first (default)</td></tr>
+          <tr><td>date desc</td><td>Most recent papers first</td></tr>
+          <tr><td>read_count desc</td><td>Most-read papers first</td></tr>
+          <tr><td>score desc</td><td>ADS relevance score</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong>Object searches</strong> — use <code>almagest source "NGC 1068"</code> rather than constructing an <code>object:</code> query manually. The <code>source</code> workflow handles SIMBAD/NED name resolution and fallbacks automatically.
+      </div>
+    </div>
+
+    <!-- Output format -->
+    <div class="doc-section" id="output-format">
+      <span class="section-tag">Reference</span>
+      <h1>Output format</h1>
+
+      <p>All generated documents follow shared conventions so outputs are consistent and citable.</p>
+
+      <h2>Inline citations</h2>
+      <p>Every factual claim is cited using the format:</p>
+      <div class="code-block">
+        <pre>(Navarro et al. 1997, `1997ApJ...490..493N`)</pre>
+      </div>
+
+      <h2>Claim labels</h2>
+      <p>Claims that cannot be directly verified from the cited source receive a label:</p>
+      <table class="doc-table">
+        <thead><tr><th>Label</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>(no label)</td><td>Directly supported by the cited paper.</td></tr>
+          <tr><td>[INFERRED]</td><td>Logical inference from cited evidence — not stated explicitly in the source.</td></tr>
+          <tr><td>[UNVERIFIED]</td><td>Could not be confirmed against the cited source.</td></tr>
+          <tr><td>[SPECULATIVE]</td><td>The author's extrapolation beyond what the literature supports.</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Provenance sidecar</h2>
+      <p>Every output file gets a companion <code>.provenance.md</code> file that records:</p>
+      <ul>
+        <li>Generation timestamp (UTC)</li>
+        <li>Workflow that produced it</li>
+        <li>All ADS bibcodes and URLs consulted</li>
+      </ul>
+
+      <h2>File naming</h2>
+      <table class="doc-table">
+        <thead><tr><th>Workflow</th><th>Output file</th></tr></thead>
+        <tbody>
+          <tr><td>deepresearch</td><td><code>outputs/&lt;slug&gt;-deep-research.md</code></td></tr>
+          <tr><td>lit</td><td><code>outputs/&lt;slug&gt;-lit-review.md</code></td></tr>
+          <tr><td>source</td><td><code>outputs/&lt;slug&gt;-source-lit.md</code></td></tr>
+          <tr><td>review</td><td><code>outputs/&lt;slug&gt;-peer-review.md</code></td></tr>
+          <tr><td>audit</td><td><code>outputs/&lt;slug&gt;-audit.md</code></td></tr>
+          <tr><td>replicate</td><td><code>outputs/&lt;slug&gt;-replication.md</code></td></tr>
+          <tr><td>compare</td><td><code>outputs/&lt;slug&gt;-comparison.md</code></td></tr>
+          <tr><td>draft</td><td><code>outputs/&lt;slug&gt;-draft.md</code></td></tr>
+          <tr><td>autoresearch</td><td><code>outputs/&lt;slug&gt;-autoresearch.md</code></td></tr>
+          <tr><td>watch --digest</td><td><code>outputs/&lt;slug&gt;-digest-&lt;date&gt;.md</code></td></tr>
+        </tbody>
+      </table>
+
+      <p>Slugs are derived from the topic using <code>slugify(topic)</code> — lowercase, hyphens, max 60 characters. Example: <code>"dark matter halo formation"</code> → <code>dark-matter-halo-formation</code>.</p>
+    </div>
+
+    <!-- Local LLM -->
+    <div class="doc-section" id="local-llm">
+      <span class="section-tag">Reference</span>
+      <h1>Local LLM setup</h1>
+
+      <p>Almagest works with any OpenAI-compatible local server. Set <code>LLM_PROVIDER=local</code> in your <code>.env</code> and point it at your server. No Anthropic API key is needed.</p>
+
+      <h2>Ollama</h2>
+
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre><span class="comment"># Install Ollama from https://ollama.com, then:</span>
+ollama pull llama3.2
+ollama serve        <span class="comment"># starts server at localhost:11434</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header">.env</div>
+        <pre>LLM_PROVIDER=local
+LOCAL_LLM_BASE_URL=http://localhost:11434/v1
+LOCAL_LLM_MODEL=llama3.2
+LOCAL_LLM_API_KEY=ollama</pre>
+      </div>
+
+      <h2>LM Studio</h2>
+
+      <p>Start the local server from the LM Studio UI, then set:</p>
+
+      <div class="code-block">
+        <div class="code-block-header">.env</div>
+        <pre>LLM_PROVIDER=local
+LOCAL_LLM_BASE_URL=http://localhost:1234/v1
+LOCAL_LLM_MODEL=<span class="str">&lt;model-name-as-shown-in-LM-Studio&gt;</span>
+LOCAL_LLM_API_KEY=lm-studio</pre>
+      </div>
+
+      <h2>vLLM</h2>
+
+      <div class="code-block">
+        <div class="code-block-header">.env</div>
+        <pre>LLM_PROVIDER=local
+LOCAL_LLM_BASE_URL=http://localhost:8000/v1
+LOCAL_LLM_MODEL=<span class="str">Qwen/Qwen2.5-7B-Instruct</span>
+LOCAL_LLM_API_KEY=token-abc123</pre>
+      </div>
+
+      <div class="callout">
+        <strong>Tool-use support</strong> — models with native function calling (Qwen 2.5, Llama 3.1+, Mistral) give the best results. Models without it fall back to text-based tool calling, which is less reliable for multi-step workflows like <code>deepresearch</code> or <code>autoresearch</code>.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="nav.js"></script>
+</body>
+</html>

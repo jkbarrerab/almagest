@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workflows — Almagest Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="../index.html" class="topnav-logo">ALMAGEST</a>
+  <span class="topnav-sep">/</span>
+  <span class="topnav-page">Workflows</span>
+  <ul class="topnav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="https://github.com/jkbarrerab/almagest">GitHub</a></li>
+  </ul>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+
+    <!-- Overview -->
+    <div class="doc-section" id="overview">
+      <span class="section-tag">Workflows</span>
+      <h1>Overview</h1>
+      <p>Almagest provides ten research workflows. Each one launches an agentic loop that searches NASA ADS, fetches paper metadata and abstracts, and synthesizes findings into a structured Markdown report saved to <code>outputs/</code>.</p>
+
+      <table class="doc-table">
+        <thead><tr><th>Command</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>deepresearch</td><td>Multi-agent investigation — the flagship workflow</td></tr>
+          <tr><td>lit</td><td>Systematic literature review with consensus mapping</td></tr>
+          <tr><td>source</td><td>All literature for a named object or sky position</td></tr>
+          <tr><td>review</td><td>Simulated peer review with severity-graded issues</td></tr>
+          <tr><td>audit</td><td>Paper-to-code reproducibility audit</td></tr>
+          <tr><td>replicate</td><td>Step-by-step replication plan (+ optional execution)</td></tr>
+          <tr><td>compare</td><td>Side-by-side comparison with agreement/conflict matrix</td></tr>
+          <tr><td>draft</td><td>Full paper-style draft with inline citations</td></tr>
+          <tr><td>autoresearch</td><td>Autonomous hypothesis → search → refine loop</td></tr>
+          <tr><td>watch</td><td>Recurring monitor for new papers on a topic</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- deepresearch -->
+    <div class="doc-section" id="deepresearch">
+      <span class="section-tag">Workflow</span>
+      <h1>deepresearch</h1>
+
+      <p><code>deepresearch</code> is the flagship Almagest workflow. It issues multiple ADS searches from different angles, extracts findings from the most relevant papers, and synthesizes everything into a structured research brief with inline citations and a BibTeX bibliography.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre>almagest deepresearch <span class="str">"dark matter halo formation at high redshift"</span>
+almagest deepresearch <span class="str">"mechanisms of AGN feedback quenching star formation"</span>
+almagest deepresearch <span class="str">"JWST constraints on galaxy formation at z > 10"</span>
+
+<span class="comment"># Steer the investigation with extra context</span>
+almagest deepresearch <span class="str">"AGN feedback quenching"</span> \
+  <span class="flag">--context</span> <span class="str">"Focus on low-mass galaxies (M* &lt; 10^10 Msun) and observational evidence only"</span></pre>
+      </div>
+
+      <h3>How it works</h3>
+      <ul class="phase-list">
+        <li><span class="phase-num">01</span><div class="phase-body"><strong>Search</strong><p>Multiple ADS queries are issued — by keyword, citation rank, date, and review articles — to ensure broad coverage from different angles.</p></div></li>
+        <li><span class="phase-num">02</span><div class="phase-body"><strong>Extraction</strong><p>Abstracts and metadata are fetched for the top papers. Key claims are traced back to specific bibcodes.</p></div></li>
+        <li><span class="phase-num">03</span><div class="phase-body"><strong>Synthesis</strong><p>Findings are cross-referenced and organized into a structured brief: background, key findings, open questions.</p></div></li>
+        <li><span class="phase-num">04</span><div class="phase-body"><strong>Citation</strong><p>Every claim is labeled with its source bibcode. Unverifiable claims are marked <code>[UNVERIFIED]</code> or <code>[INFERRED]</code>.</p></div></li>
+      </ul>
+
+      <h3>Output</h3>
+      <ul class="output-list">
+        <li><span class="output-key">Summary</span><span class="output-val">Concise overview of the topic and state of the field.</span></li>
+        <li><span class="output-key">Background</span><span class="output-val">Historical context and foundational papers.</span></li>
+        <li><span class="output-key">Key Findings</span><span class="output-val">Main results with inline citations.</span></li>
+        <li><span class="output-key">Open Questions</span><span class="output-val">Active debates and gaps in the evidence.</span></li>
+        <li><span class="output-key">Bibliography</span><span class="output-val">BibTeX block for all cited papers.</span></li>
+      </ul>
+      <p>Saved to: <code>outputs/&lt;slug&gt;-deep-research.md</code></p>
+
+      <h3>Customization</h3>
+      <p>Narrow topics produce focused, evidence-dense briefs. Broad topics produce survey-style overviews. Use <code>--context</code> to restrict scope, specify a redshift range, prioritize certain instruments, or seed the search with bibcodes you already know.</p>
+    </div>
+
+    <!-- lit -->
+    <div class="doc-section" id="lit">
+      <span class="section-tag">Workflow</span>
+      <h1>lit</h1>
+
+      <p><code>lit</code> produces a systematic literature review from primary sources: foundational papers, key milestones, the current consensus, active debates, and open gaps. Ideal as background research before starting a new project or writing a paper introduction.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre>almagest lit <span class="str">"stellar feedback in dwarf galaxies"</span>
+almagest lit <span class="str">"fast radio bursts progenitor models"</span>
+almagest lit <span class="str">"integral field spectroscopy IFU surveys"</span>
+
+<span class="comment"># Include specific papers you want covered</span>
+almagest lit <span class="str">"oxygen abundance gradients"</span> \
+  <span class="flag">--context</span> <span class="str">"Include IFU surveys only. Make sure to cover:
+  - 2014A&amp;A...563A..49S (CALIFA survey)
+  - 2018MNRAS.481.2299S (MaNGA gradients)"</span></pre>
+      </div>
+
+      <h3>How it works</h3>
+      <p>The agent issues multiple ADS queries — most-cited papers for seminal work, <code>doctype:review</code> for review articles, and recent date-ranked results for new developments. It fetches full metadata and abstracts for the top papers, then synthesizes a structured review mapping the consensus and flagging active debates.</p>
+
+      <h3>Output</h3>
+      <ul class="output-list">
+        <li><span class="output-key">Introduction</span><span class="output-val">Motivation and definition of the topic.</span></li>
+        <li><span class="output-key">Foundational Work</span><span class="output-val">Seminal papers that established the field.</span></li>
+        <li><span class="output-key">Current Consensus</span><span class="output-val">What is well-established and broadly agreed upon.</span></li>
+        <li><span class="output-key">Active Debates</span><span class="output-val">Conflicting results and competing interpretations.</span></li>
+        <li><span class="output-key">Open Questions</span><span class="output-val">What remains unknown or underexplored.</span></li>
+        <li><span class="output-key">Bibliography</span><span class="output-val">BibTeX for all cited papers.</span></li>
+      </ul>
+      <p>Saved to: <code>outputs/&lt;slug&gt;-lit-review.md</code></p>
+
+      <h3>Customization</h3>
+      <p>Restrict to a time window (<code>"Focus on work published after 2015"</code>), a specific instrument (<code>"CALIFA and MaNGA only"</code>), or a redshift range. Seed it with bibcodes you want included and ask the agent to explain how they fit into the overall narrative.</p>
+    </div>
+
+    <!-- source -->
+    <div class="doc-section" id="source">
+      <span class="section-tag">Workflow</span>
+      <h1>source</h1>
+
+      <p><code>source</code> searches NASA ADS for all literature about a specific astronomical object or sky position. It resolves object names via SIMBAD/NED and synthesizes a complete overview with a discovery timeline, instrument coverage, and consensus findings.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">By object name</div>
+        <pre>almagest source <span class="str">"NGC 1068"</span>
+almagest source <span class="str">"M87"</span> <span class="flag">--topic</span> <span class="str">"jet kinematics"</span>
+almagest source <span class="str">"Crab Nebula"</span> <span class="flag">--topic</span> <span class="str">"pulsar wind nebula"</span></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-block-header">By sky position</div>
+        <pre>almagest source <span class="flag">--ra</span> 40.669 <span class="flag">--dec</span> -0.014 <span class="flag">--radius</span> 5arcmin
+almagest source <span class="flag">--ra</span> 187.706 <span class="flag">--dec</span> 12.391 <span class="flag">--radius</span> 2arcmin <span class="flag">--topic</span> <span class="str">"radio jet"</span></pre>
+      </div>
+      <div class="callout">
+        <strong>Radius formats</strong> — <code>5arcmin</code>, <code>30arcsec</code>, <code>0.5deg</code>, or a plain number (= arcmin). Maximum radius is 1 degree.
+      </div>
+
+      <h3>How it works</h3>
+      <p>The agent runs a broad <code>ads_search_object</code> to find all papers about the object via SIMBAD/NED resolution. If a topic is given, a second filtered call narrows results. For positional queries, a cone search is performed. The top 8–10 papers are fetched in full and synthesized into a structured report.</p>
+
+      <h3>Output</h3>
+      <ul class="output-list">
+        <li><span class="output-key">Object Overview</span><span class="output-val">Type, distance, redshift, and notable characteristics.</span></li>
+        <li><span class="output-key">Key Papers</span><span class="output-val">Table of top papers with bibcode, authors, year, and citation count.</span></li>
+        <li><span class="output-key">Discovery Timeline</span><span class="output-val">Chronological key findings with instrument and bibcode.</span></li>
+        <li><span class="output-key">Instrument Coverage</span><span class="output-val">Which telescopes and surveys have observed the source.</span></li>
+        <li><span class="output-key">Consensus &amp; Open Questions</span><span class="output-val">What is established vs. still debated.</span></li>
+        <li><span class="output-key">Bibliography</span><span class="output-val">BibTeX for all cited papers.</span></li>
+      </ul>
+      <p>Saved to: <code>outputs/&lt;slug&gt;-source-lit.md</code></p>
+    </div>
+
+    <!-- review -->
+    <div class="doc-section" id="review">
+      <span class="section-tag">Workflow</span>
+      <h1>review</h1>
+
+      <p><code>review</code> simulates a peer review of a paper. It accepts an ADS bibcode, a local PDF, or both, and produces a structured review with severity-graded issues and an actionable revision plan.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre><span class="comment"># By ADS bibcode</span>
+almagest review 2023ApJ...950...72C
+
+<span class="comment"># Local PDF (preprint, paywalled paper, or your own manuscript)</span>
+almagest review <span class="flag">--pdf</span> ~/Downloads/my_paper.pdf
+
+<span class="comment"># Both — full PDF text + ADS metadata and related-work search</span>
+almagest review 2023ApJ...950...72C <span class="flag">--pdf</span> paper.pdf
+
+<span class="comment"># Guide the reviewer toward specific concerns</span>
+almagest review <span class="flag">--pdf</span> paper.pdf \
+  <span class="flag">--context</span> <span class="str">"Consider these related papers:
+  - 2021ApJ...910...72C  (metallicity gradients, same method)
+  - 2019MNRAS.484.5230R  (IFU methodology reference)
+  Check whether systematic errors in abundance calibration are propagated."</span></pre>
+      </div>
+
+      <h3>How it works</h3>
+      <p>The agent reads the full paper text (from PDF or ADS abstract) and evaluates it against peer review criteria: novelty, methodology, statistical rigor, discussion of limitations, and citation completeness. It then searches ADS for relevant related work to check for missing citations. Each issue is tagged with a severity level.</p>
+
+      <h3>Output</h3>
+      <ul class="output-list">
+        <li><span class="output-key">Summary</span><span class="output-val">One-paragraph assessment of contribution and quality.</span></li>
+        <li><span class="output-key">Strengths</span><span class="output-val">What the paper does well.</span></li>
+        <li><span class="output-key">Issues</span><span class="output-val">Graded list: <code>CRITICAL</code> · <code>MAJOR</code> · <code>MINOR</code> · <code>COSMETIC</code>.</span></li>
+        <li><span class="output-key">Missing Citations</span><span class="output-val">Relevant ADS papers that were not cited.</span></li>
+        <li><span class="output-key">Revision Plan</span><span class="output-val">Numbered action list of recommended changes.</span></li>
+        <li><span class="output-key">Recommendation</span><span class="output-val">Accept / Minor revision / Major revision / Reject.</span></li>
+      </ul>
+      <p>Saved to: <code>outputs/&lt;slug&gt;-peer-review.md</code></p>
+    </div>
+
+    <!-- audit -->
+    <div class="doc-section" id="audit">
+      <span class="section-tag">Workflow</span>
+      <h1>audit</h1>
+
+      <p><code>audit</code> checks whether a code repository linked to a paper (GitHub, Zenodo, ASCL) actually reproduces the methods, parameters, and results described in the text. It flags mismatches between the paper and the code.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre>almagest audit 2022ApJ...935..167V
+almagest audit 2019JOSS....4.1414F
+
+<span class="comment"># Focus the audit on a specific claim</span>
+almagest audit 2022ApJ...935..167V \
+  <span class="flag">--context</span> <span class="str">"Check whether the stellar mass function parameters in Table 2
+  match the values hardcoded in the fitting routine."</span></pre>
+      </div>
+
+      <h3>Output</h3>
+      <ul class="output-list">
+        <li><span class="output-key">Paper Summary</span><span class="output-val">Key methods, parameters, and results as described.</span></li>
+        <li><span class="output-key">Code Found</span><span class="output-val">Repository URL and description.</span></li>
+        <li><span class="output-key">Matches</span><span class="output-val">Claims correctly reproduced in the code.</span></li>
+        <li><span class="output-key">Mismatches</span><span class="output-val">Discrepancies between paper and code, with file locations.</span></li>
+        <li><span class="output-key">Missing</span><span class="output-val">Steps described in the paper with no corresponding code.</span></li>
+        <li><span class="output-key">Verdict</span><span class="output-val">Overall reproducibility assessment.</span></li>
+      </ul>
+      <p>Saved to: <code>outputs/&lt;slug&gt;-audit.md</code></p>
+    </div>
+
+    <!-- replicate -->
+    <div class="doc-section" id="replicate">
+      <span class="section-tag">Workflow</span>
+      <h1>replicate</h1>
+
+      <p><code>replicate</code> generates a step-by-step plan to independently reproduce the key results of a paper: data access, software environment, expected intermediate outputs, and validation checks. Add <code>--execute</code> to run the first steps in a sandboxed shell.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre><span class="comment"># Plan only (safe — no code runs)</span>
+almagest replicate 2020MNRAS.499..230B
+
+<span class="comment"># Plan + execute</span>
+almagest replicate 2020MNRAS.499..230B <span class="flag">--execute</span>
+
+<span class="comment"># Constrain to your environment</span>
+almagest replicate 2020MNRAS.499..230B \
+  <span class="flag">--context</span> <span class="str">"I only have access to public SDSS data. Target Python 3.11."</span></pre>
+      </div>
+
+      <h3>Output</h3>
+      <ul class="output-list">
+        <li><span class="output-key">Data Access</span><span class="output-val">Where to download datasets and any access restrictions.</span></li>
+        <li><span class="output-key">Environment</span><span class="output-val">Required packages, versions, and setup commands.</span></li>
+        <li><span class="output-key">Steps</span><span class="output-val">Numbered plan from raw data to final figures.</span></li>
+        <li><span class="output-key">Expected Outputs</span><span class="output-val">What each step should produce, with validation criteria.</span></li>
+        <li><span class="output-key">Caveats</span><span class="output-val">Potential obstacles: missing data, stochastic components, hardware requirements.</span></li>
+      </ul>
+      <p>Saved to: <code>outputs/&lt;slug&gt;-replication.md</code></p>
+    </div>
+
+    <!-- compare -->
+    <div class="doc-section" id="compare">
+      <span class="section-tag">Workflow</span>
+      <h1>compare</h1>
+
+      <p><code>compare</code> places competing theories, methods, or results side by side and produces an agreement and conflict matrix. Useful for understanding where the literature converges and where it disagrees.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre>almagest compare <span class="str">"NFW vs Einasto dark matter density profiles"</span>
+almagest compare <span class="str">"ram pressure stripping vs AGN feedback as quenching mechanism"</span>
+
+<span class="comment"># Guide the comparison dimensions</span>
+almagest compare <span class="str">"NFW vs Einasto dark matter profiles"</span> \
+  <span class="flag">--context</span> <span class="str">"Focus on: (1) fit quality in dwarf galaxies,
+  (2) behaviour at small radii, (3) N-body results post-2015."</span></pre>
+      </div>
+
+      <h3>Output</h3>
+      <ul class="output-list">
+        <li><span class="output-key">Overview</span><span class="output-val">Brief description of each approach.</span></li>
+        <li><span class="output-key">Agreement Matrix</span><span class="output-val">Dimensions on which the sources agree, with citations.</span></li>
+        <li><span class="output-key">Conflict Matrix</span><span class="output-val">Dimensions on which they disagree, with evidence on each side.</span></li>
+        <li><span class="output-key">Verdict</span><span class="output-val">Current state: resolved, ongoing, or context-dependent.</span></li>
+        <li><span class="output-key">Bibliography</span><span class="output-val">BibTeX for all cited papers.</span></li>
+      </ul>
+      <p>Saved to: <code>outputs/&lt;slug&gt;-comparison.md</code></p>
+    </div>
+
+    <!-- draft -->
+    <div class="doc-section" id="draft">
+      <span class="section-tag">Workflow</span>
+      <h1>draft</h1>
+
+      <p><code>draft</code> researches a topic from NASA ADS and writes a full paper-style draft — abstract through conclusions — with inline citations and a BibTeX bibliography. Not submission-ready, but a solid starting point that accelerates writing.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre>almagest draft <span class="str">"the role of environment in galaxy quenching at z ~ 0.5"</span>
+almagest draft <span class="str">"a review of chemical abundance gradients in nearby galaxies"</span>
+
+<span class="comment"># Seed with your own data and target journal</span>
+almagest draft <span class="str">"chemical abundance gradients in nearby galaxies"</span> \
+  <span class="flag">--context</span> <span class="str">"Assume we have MaNGA IFU data for 500 galaxies.
+  Emphasise comparison with CALIFA results. Target: ApJ."</span></pre>
+      </div>
+
+      <h3>Output</h3>
+      <ul class="output-list">
+        <li><span class="output-key">Abstract</span><span class="output-val">200-word structured abstract.</span></li>
+        <li><span class="output-key">Introduction</span><span class="output-val">Motivation, context, and statement of the problem.</span></li>
+        <li><span class="output-key">Background / Methods</span><span class="output-val">Review of prior work and proposed methodology.</span></li>
+        <li><span class="output-key">Results &amp; Discussion</span><span class="output-val">Key findings with inline citations.</span></li>
+        <li><span class="output-key">Conclusions</span><span class="output-val">Summary and future directions.</span></li>
+        <li><span class="output-key">Bibliography</span><span class="output-val">Complete BibTeX block.</span></li>
+      </ul>
+      <p>Saved to: <code>outputs/&lt;slug&gt;-draft.md</code></p>
+    </div>
+
+    <!-- autoresearch -->
+    <div class="doc-section" id="autoresearch">
+      <span class="section-tag">Workflow</span>
+      <h1>autoresearch</h1>
+
+      <p><code>autoresearch</code> starts from a seed idea and runs an autonomous loop: form a hypothesis, search ADS for evidence, evaluate support, refine, and repeat. It continues until the evidence converges or <code>--max-rounds</code> is reached.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre><span class="comment"># Default 5 rounds</span>
+almagest autoresearch <span class="str">"galaxy quenching driven by AGN feedback"</span>
+
+<span class="comment"># More thorough</span>
+almagest autoresearch <span class="str">"origin of the stellar mass-metallicity relation"</span> <span class="flag">--max-rounds</span> 10
+
+<span class="comment"># Constrain the hypothesis space</span>
+almagest autoresearch <span class="str">"galaxy quenching at cosmic noon"</span> \
+  <span class="flag">--context</span> <span class="str">"Restrict to observational evidence at 1.5 &lt; z &lt; 2.5.
+  Prioritise JWST and ALMA results published after 2022."</span></pre>
+      </div>
+
+      <h3>How it works</h3>
+      <p>Each round the agent states its current best hypothesis, searches ADS for confirming and refuting evidence, updates its confidence score, and refines the hypothesis for the next round. The final report records each hypothesis, the evidence considered, and the confidence trajectory across all rounds.</p>
+
+      <div class="callout callout-blue">
+        <strong>Note:</strong> This workflow performs multiple ADS search rounds. Use <code>--max-rounds 3</code> for quick explorations to limit API usage.
+      </div>
+
+      <h3>Output</h3>
+      <ul class="output-list">
+        <li><span class="output-key">Hypothesis log</span><span class="output-val">The hypothesis at each round with the evidence considered.</span></li>
+        <li><span class="output-key">Evidence summary</span><span class="output-val">Papers supporting and contradicting the final hypothesis.</span></li>
+        <li><span class="output-key">Confidence trajectory</span><span class="output-val">How support changed across rounds.</span></li>
+        <li><span class="output-key">Final assessment</span><span class="output-val">Best-supported hypothesis and remaining uncertainties.</span></li>
+        <li><span class="output-key">Bibliography</span><span class="output-val">BibTeX for all papers consulted.</span></li>
+      </ul>
+      <p>Saved to: <code>outputs/&lt;slug&gt;-autoresearch.md</code></p>
+    </div>
+
+    <!-- watch -->
+    <div class="doc-section" id="watch">
+      <span class="section-tag">Workflow</span>
+      <h1>watch</h1>
+
+      <p><code>watch</code> registers a saved ADS search and reports new papers each time you run <code>watch run</code>. With <code>--digest</code>, it generates an AI summary of what is new and notable since the last check.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre><span class="comment"># Add a watch (topic text becomes the ADS query)</span>
+almagest watch add <span class="str">"galaxy quenching"</span>
+
+<span class="comment"># Add a watch with a custom ADS query</span>
+almagest watch add <span class="str">"IFU metallicity gradients"</span> \
+  <span class="flag">--query</span> <span class="str">"abs:metallicity abs:gradient (bibstem:ApJ OR bibstem:MNRAS) year:2024-2025"</span>
+
+<span class="comment"># Watch a specific author's new papers</span>
+almagest watch add <span class="str">"Pillepich new papers"</span> \
+  <span class="flag">--query</span> <span class="str">"author:Pillepich,A year:2024-2025"</span>
+
+almagest watch list                  <span class="comment"># list all registered watches</span>
+almagest watch run                   <span class="comment"># check for new papers</span>
+almagest watch run <span class="flag">--digest</span>          <span class="comment"># check + generate AI digest</span>
+almagest watch remove galaxy-quenching</pre>
+      </div>
+
+      <h3>Output</h3>
+      <p>Without <code>--digest</code>: a plain list of new papers since the last run (bibcode, authors, title, citation count).</p>
+      <p>With <code>--digest</code>: an AI-written summary grouping new papers by sub-topic, with brief annotations explaining each paper's contribution.</p>
+      <p>Saved to: <code>outputs/&lt;slug&gt;-digest-&lt;date&gt;.md</code></p>
+    </div>
+
+  </main>
+</div>
+
+<script src="nav.js"></script>
+</body>
+</html>

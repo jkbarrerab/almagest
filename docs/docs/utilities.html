@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Utilities — Almagest Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="../index.html" class="topnav-logo">ALMAGEST</a>
+  <span class="topnav-sep">/</span>
+  <span class="topnav-page">Utilities</span>
+  <ul class="topnav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="https://github.com/jkbarrerab/almagest">GitHub</a></li>
+  </ul>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+
+    <!-- search -->
+    <div class="doc-section" id="search">
+      <span class="section-tag">Utility</span>
+      <h1>search</h1>
+
+      <p>Quick ADS paper search that prints results directly to the terminal. Useful for finding bibcodes before running a workflow or testing a query before adding a watch.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre>almagest search <span class="str">"dark matter substructure year:2023-2025"</span>
+almagest search <span class="str">"author:Schaye,J bibstem:MNRAS"</span> <span class="flag">--sort</span> <span class="str">"date desc"</span>
+almagest search <span class="str">"doctype:review abs:AGN feedback"</span> <span class="flag">--limit</span> 20</pre>
+      </div>
+
+      <h3>Options</h3>
+      <table class="doc-table">
+        <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>--limit</td><td class="dim">10</td><td>Maximum number of results to return.</td></tr>
+          <tr><td>--sort</td><td class="dim">citation_count desc</td><td>Sort order. Common values: <code>citation_count desc</code>, <code>date desc</code>.</td></tr>
+        </tbody>
+      </table>
+
+      <p>Each result shows: bibcode, first author, year, title, and citation count. Use <code>almagest show &lt;bibcode&gt;</code> to fetch the full abstract for any result.</p>
+
+      <div class="callout">
+        <strong>ADS query syntax</strong> — <code>search</code> supports the full ADS Solr syntax. See the <a href="reference.html#ads-syntax">ADS query syntax</a> reference for a complete list of operators.
+      </div>
+    </div>
+
+    <!-- show -->
+    <div class="doc-section" id="show">
+      <span class="section-tag">Utility</span>
+      <h1>show</h1>
+
+      <p>Fetch and display the full metadata and abstract for a single ADS bibcode. Useful for quickly reading a paper's content before deciding whether to include it in a workflow.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre>almagest show 1997ApJ...490..493N
+almagest show 2023Natur.616..266L</pre>
+      </div>
+
+      <h3>Output</h3>
+      <p>Displays: title, authors, year, journal, citation count, bibcode, DOI, arXiv link, and the full abstract.</p>
+    </div>
+
+    <!-- config-check -->
+    <div class="doc-section" id="config-check">
+      <span class="section-tag">Utility</span>
+      <h1>config-check</h1>
+
+      <p>Verifies that all required environment variables are present and reachable before running any workflow. Run this after setting up your <code>.env</code> file to confirm everything is configured correctly.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre>almagest config-check</pre>
+      </div>
+
+      <h3>Example output</h3>
+      <div class="code-block">
+        <div class="code-block-header">terminal</div>
+        <pre>╭─ Configuration Check ─╮
+  ✓ ADS_API_TOKEN: abc123...
+  ✓ LLM_PROVIDER: claude
+  ✓ ANTHROPIC_API_KEY: sk-ant-...
+    model: claude-sonnet-4-6
+    output dir: ./outputs
+
+All checks passed.</pre>
+      </div>
+
+      <p>If a check fails, the command prints the missing variable and exits with a non-zero status. Copy <code>.env.example</code> to <code>.env</code> and fill in the missing values, then re-run.</p>
+    </div>
+
+  </main>
+</div>
+
+<script src="nav.js"></script>
+</body>
+</html>
