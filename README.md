@@ -6,7 +6,7 @@
    ╩ ╩╩═╝╩ ╩╩ ╩╚═╝╚═╝╚═╝ ╩
 ```
 
-**Almagest** is an open-source CLI research agent for the [NASA Astrophysics Data System (ADS)](https://ui.adsabs.harvard.edu). It runs ten research workflows — literature reviews, peer reviews, reproducibility audits, paper drafts, and more — powered by Claude or any OpenAI-compatible local LLM.
+**Almagest** is an open-source CLI research agent for the [NASA Astrophysics Data System (ADS)](https://ui.adsabs.harvard.edu). It runs eleven research workflows — literature reviews, peer reviews, reproducibility audits, paper drafts, and more — powered by Claude or any OpenAI-compatible local LLM.
 
 > Named after the *Almagest* — Ptolemy's 2nd-century compendium of all known astronomical knowledge.
 
@@ -22,6 +22,7 @@
 | `almagest lit` | Literature review with consensus mapping and gap analysis |
 | `almagest source` | All literature for a named object or sky position |
 | `almagest review` | Simulated peer review with severity-graded issues |
+| `almagest coauthor` | Friendly co-author review delivered as a personal email |
 | `almagest audit` | Paper-to-code reproducibility audit |
 | `almagest replicate` | Step-by-step replication plan (optional execution) |
 | `almagest compare` | Side-by-side source comparison with agreement/conflict matrix |

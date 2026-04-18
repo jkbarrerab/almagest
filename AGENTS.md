@@ -62,12 +62,13 @@ Every output file gets a `.provenance.md` sidecar recording:
 
 ```
 outputs/
-  <topic-slug>-brief.md          # /deepresearch output
-  <topic-slug>-lit-review.md     # /lit output
-  <topic-slug>-peer-review.md    # /review output
-  <topic-slug>-audit.md          # /audit output
-  <topic-slug>-replication.md    # /replicate output
-  <topic-slug>-comparison.md     # /compare output
-  <topic-slug>-draft.md          # /draft output
-  <topic-slug>-autoresearch.md   # /autoresearch output
+  <topic-slug>-brief.md             # /deepresearch output
+  <topic-slug>-lit-review.md        # /lit output
+  <topic-slug>-peer-review.md       # /review output
+  <topic-slug>-coauthor-review.md   # /coauthor output
+  <topic-slug>-audit.md             # /audit output
+  <topic-slug>-replication.md       # /replicate output
+  <topic-slug>-comparison.md        # /compare output
+  <topic-slug>-draft.md             # /draft output
+  <topic-slug>-autoresearch.md      # /autoresearch output
 ```

@@ -339,6 +339,41 @@ Output: `outputs/<slug>-digest-<date>.md` (with `--digest`)
 
 ---
 
+## `/coauthor` — Friendly co-author review
+
+Takes an ADS bibcode, a local PDF file, or both, and writes a warm, personal
+email to the authors with honest feedback — as a trusted collaborator rather
+than a formal referee.
+
+```bash
+# Review by ADS bibcode
+almagest coauthor 2023ApJ...950...72C
+
+# Review a local PDF (your own draft, preprint, paywalled paper)
+almagest coauthor --pdf ~/Downloads/my_draft.pdf
+
+# Both: full PDF text + ADS metadata for related-work search
+almagest coauthor 2023ApJ...950...72C --pdf ~/Downloads/same_paper.pdf
+
+# Other bibcode examples
+almagest coauthor 1997ApJ...490..493N          # NFW profile paper
+almagest coauthor 2023Natur.616..266L          # Recent JWST paper
+```
+
+**Adding context — papers you consider important or specific concerns:**
+
+```bash
+almagest coauthor --pdf ~/Downloads/my_draft.pdf \
+  --context "The authors are graduate students submitting their first paper.
+  Be particularly encouraging. Also check whether they discuss:
+  - 2021ApJ...910...72C  (same method, should be cited)
+  - 2019MNRAS.484.5230R  (IFU methodology reference)"
+```
+
+Output: `outputs/<slug>-coauthor-review.md`
+
+---
+
 ## Quick utilities
 
 ```bash
