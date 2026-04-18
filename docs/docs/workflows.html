@@ -45,6 +45,7 @@
           <tr><td>draft</td><td>Full paper-style draft with inline citations</td></tr>
           <tr><td>autoresearch</td><td>Autonomous hypothesis → search → refine loop</td></tr>
           <tr><td>watch</td><td>Recurring monitor for new papers on a topic</td></tr>
+          <tr><td>coauthor</td><td>Friendly co-author review delivered as a personal email</td></tr>
         </tbody>
       </table>
     </div>
@@ -404,6 +405,49 @@ almagest watch remove galaxy-quenching</pre>
       <p>Without <code>--digest</code>: a plain list of new papers since the last run (bibcode, authors, title, citation count).</p>
       <p>With <code>--digest</code>: an AI-written summary grouping new papers by sub-topic, with brief annotations explaining each paper's contribution.</p>
       <p>Saved to: <code>outputs/&lt;slug&gt;-digest-&lt;date&gt;.md</code></p>
+    </div>
+
+    <!-- coauthor -->
+    <div class="doc-section" id="coauthor">
+      <span class="section-tag">Workflow</span>
+      <h1>coauthor</h1>
+
+      <p><code>coauthor</code> invites the agent to be a co-author of your draft. It reads the paper as a trusted collaborator and writes a warm, personal email with honest feedback — not a formal referee report. The tone is collegial, the output is a Markdown email.</p>
+
+      <h3>Usage</h3>
+      <div class="code-block">
+        <div class="code-block-header">shell</div>
+        <pre><span class="comment"># Read a local PDF draft</span>
+almagest coauthor <span class="flag">--pdf</span> ~/Documents/my_draft.pdf
+
+<span class="comment"># Review a published paper by bibcode</span>
+almagest coauthor 2023ApJ...950...72C
+
+<span class="comment"># Both — full PDF text + ADS metadata</span>
+almagest coauthor 2023ApJ...950...72C <span class="flag">--pdf</span> draft.pdf
+
+<span class="comment"># Focus the feedback on a specific section</span>
+almagest coauthor <span class="flag">--pdf</span> draft.pdf \
+  <span class="flag">--context</span> <span class="str">"Pay particular attention to Section 3 and the discussion of systematics."</span></pre>
+      </div>
+
+      <h3>How it works</h3>
+      <p>The agent reads the full paper text (from PDF or ADS abstract), searches NASA ADS for related work that should be cited or discussed, and checks key claims against the literature. It then writes a personal email as a colleague who genuinely wants the paper to succeed — covering overall impression, what works well, specific concerns explained kindly, and any missing references worth adding.</p>
+
+      <div class="callout">
+        <strong>Difference from <code>review</code></strong> — <code>review</code> produces a structured referee report with severity labels (CRITICAL, MAJOR, …). <code>coauthor</code> writes a friendly email in prose, as a collaborator rather than an anonymous reviewer.
+      </div>
+
+      <h3>Output</h3>
+      <ul class="output-list">
+        <li><span class="output-key">To / From / Subject</span><span class="output-val">Email header with author names (if found) and paper title.</span></li>
+        <li><span class="output-key">Overall impression</span><span class="output-val">A warm opening that acknowledges the work and states the main take.</span></li>
+        <li><span class="output-key">What works well</span><span class="output-val">Genuine strengths of the paper, explained in context.</span></li>
+        <li><span class="output-key">Concerns</span><span class="output-val">Honest feedback on weak points, framed as questions or suggestions rather than verdicts.</span></li>
+        <li><span class="output-key">References to consider</span><span class="output-val">Papers found in ADS that might strengthen the discussion.</span></li>
+        <li><span class="output-key">Encouraging close</span><span class="output-val">A positive sign-off that acknowledges the contribution.</span></li>
+      </ul>
+      <p>Saved to: <code>outputs/&lt;slug&gt;-coauthor-review.md</code></p>
     </div>
 
   </main>

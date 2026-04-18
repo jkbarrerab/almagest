@@ -30,6 +30,7 @@
       ${a('workflows.html', 'draft', true)}
       ${a('workflows.html', 'autoresearch', true)}
       ${a('workflows.html', 'watch', true)}
+      ${a('workflows.html', 'coauthor', true)}
     </div>
     <div class="sidebar-group">
       <div class="sidebar-label">Utilities</div>
