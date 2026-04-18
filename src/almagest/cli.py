@@ -189,6 +189,54 @@ def review(
 
 
 # ---------------------------------------------------------------------------
+# /coauthor
+# ---------------------------------------------------------------------------
+
+@main.command()
+@click.argument("bibcode", required=False, default=None)
+@click.option(
+    "--pdf",
+    "pdf_path",
+    type=click.Path(exists=True, dir_okay=False),
+    default=None,
+    help="Path to a local PDF file to review.",
+)
+@with_context_options
+def coauthor(
+    bibcode: str | None,
+    pdf_path: str | None,
+    extra_context: str | None,
+    context_file: str | None,
+) -> None:
+    """Friendly co-author review of a draft, delivered as an email.
+
+    \b
+    You are invited as a co-author to read the draft and share honest,
+    collegial feedback — not a formal referee report. The output is a
+    Markdown file formatted as a personal email to the authors.
+
+    \b
+    Accepts a bibcode, a local PDF, or both:
+      almagest coauthor 2023ApJ...950...72C
+      almagest coauthor --pdf /path/to/draft.pdf
+      almagest coauthor --pdf draft.pdf --context "Pay attention to Section 3"
+    """
+    if not bibcode and not pdf_path:
+        raise click.UsageError("Provide a BIBCODE, --pdf PATH, or both.")
+    _check_env()
+    ctx = resolve_context(extra_context, context_file)
+    from .workflows import coauthor as wf
+    try:
+        wf.run(bibcode=bibcode, console=console, pdf_path=pdf_path, extra_context=ctx)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Interrupted.[/yellow]")
+    except Exception as e:
+        console.print(f"\n[red]Error: {e}[/red]")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+
+
+# ---------------------------------------------------------------------------
 # /audit
 # ---------------------------------------------------------------------------
 
