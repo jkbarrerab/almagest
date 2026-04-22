@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "almagest"
 version = "0.1.0"
-description = "AI research agent for NASA ADS — multi-workflow CLI powered by Claude"
+description = "AI research agent for NASA ADS — multi-workflow CLI"
 requires-python = ">=3.11"
 dependencies = [
     "anthropic>=0.40.0",
